@@ -1,0 +1,291 @@
+{
+  "@@locale": "en",
+  "appTitle": "Komero",
+  "cancel": "Cancel",
+  "save": "Save",
+  "retry": "Retry",
+  "close": "Close",
+  "search": "Search",
+  "apply": "Apply",
+  "done": "Done",
+  "all": "All",
+  "today": "Today",
+  "thisWeek": "This week",
+  "thisMonth": "This month",
+  "loading": "Loading…",
+  "somethingWentWrong": "Something went wrong",
+  "noResults": "Nothing here yet",
+  "permissionDenied": "You do not have permission for this",
+  "loginTitle": "Sign in to your store",
+  "loginSubtitle": "Manage orders, stock and products on the go",
+  "storeDomain": "Store address",
+  "storeDomainHint": "mystore.ge",
+  "storeDomainHelp": "The domain your store runs on. It tells Komero which store to open.",
+  "email": "Email",
+  "password": "Password",
+  "signIn": "Sign in",
+  "signOut": "Sign out",
+  "forgotPassword": "Forgot password?",
+  "resetLinkSent": "Check your email for a reset link",
+  "enterStoreDomain": "Enter your store address",
+  "enterEmail": "Enter your email",
+  "enterPassword": "Enter your password",
+  "invalidCredentials": "Wrong email or password",
+  "storeNotFound": "No store found at that address",
+  "notAMember": "This account cannot manage that store",
+  "navHome": "Home",
+  "navOrders": "Orders",
+  "navInventory": "Inventory",
+  "navProducts": "Products",
+  "navSettings": "Settings",
+  "dashboard": "Dashboard",
+  "liveNow": "Live now",
+  "visitorsNow": "{count, plural, =0{No visitors right now} =1{1 visitor right now} other{{count} visitors right now}}",
+  "@visitorsNow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "revenue": "Revenue",
+  "orders": "Orders",
+  "customers": "Customers",
+  "products": "Products",
+  "conversionRate": "Conversion rate",
+  "averageOrderValue": "Average order value",
+  "sessions": "Sessions",
+  "salesOverTime": "Sales over time",
+  "topProducts": "Top products",
+  "unitsSold": "{count} sold",
+  "@unitsSold": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "channels": "Channels",
+  "funnel": "Shopping funnel",
+  "funnelViewed": "Viewed a product",
+  "funnelCart": "Added to cart",
+  "funnelCheckout": "Started checkout",
+  "funnelPurchased": "Purchased",
+  "vsLastMonth": "vs last month",
+  "needsAttention": "Needs attention",
+  "lowStockCount": "{count, plural, =1{1 product low on stock} other{{count} products low on stock}}",
+  "@lowStockCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outOfStockCount": "{count, plural, =1{1 product out of stock} other{{count} products out of stock}}",
+  "@outOfStockCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "orderNumber": "Order #{number}",
+  "@orderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "itemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statusPending": "Pending",
+  "statusPaid": "Paid",
+  "statusProcessing": "Processing",
+  "statusShipped": "Shipped",
+  "statusDelivered": "Delivered",
+  "statusCancelled": "Cancelled",
+  "statusRefunded": "Refunded",
+  "channelWebShop": "Online store",
+  "channelB2B": "B2B",
+  "channelPos": "Point of sale",
+  "orderDetails": "Order details",
+  "items": "Items",
+  "customer": "Customer",
+  "shippingAddress": "Shipping address",
+  "payment": "Payment",
+  "paymentMethod": "Payment method",
+  "paymentStatus": "Payment status",
+  "subtotal": "Subtotal",
+  "tax": "Tax",
+  "shipping": "Shipping",
+  "discount": "Discount",
+  "total": "Total",
+  "markAsFulfilled": "Mark as fulfilled",
+  "fulfillOrder": "Fulfil order",
+  "trackingNumber": "Tracking number",
+  "trackingNumberHint": "Carrier tracking code",
+  "estimatedDelivery": "Estimated delivery",
+  "updateStatus": "Update status",
+  "statusUpdated": "Order updated",
+  "addNote": "Note for the customer",
+  "cancelOrder": "Cancel order",
+  "cancelReason": "Reason for cancelling",
+  "orderCancelled": "Order cancelled",
+  "callCustomer": "Call",
+  "emailCustomer": "Email",
+  "posOrderReadOnly": "Till sales change only through a return at the till",
+  "markRefunded": "Mark as refunded",
+  "refundWarning": "This records the refund in Komero. Move the money in your payment provider separately.",
+  "guestOrder": "Guest order",
+  "inventory": "Inventory",
+  "scanBarcode": "Scan barcode",
+  "scanToFind": "Scan a barcode to find a product",
+  "scanning": "Scanning…",
+  "cameraPermissionNeeded": "Camera access is needed to scan barcodes",
+  "productNotFound": "No product matches that code",
+  "matchedBySku": "Matched by SKU",
+  "onHand": "On hand",
+  "reserved": "Reserved",
+  "available": "Available",
+  "lowStock": "Low stock",
+  "outOfStock": "Out of stock",
+  "inStock": "In stock",
+  "allStock": "All stock",
+  "adjustStock": "Adjust stock",
+  "receiveStock": "Receive stock",
+  "countStock": "Count stock",
+  "newQuantity": "New quantity",
+  "addQuantity": "Add",
+  "removeQuantity": "Remove",
+  "setQuantity": "Set to",
+  "adjustmentReason": "Reason",
+  "reasonRestocked": "Restocked",
+  "reasonDamaged": "Damaged",
+  "reasonReturned": "Returned",
+  "reasonTheft": "Theft or loss",
+  "reasonCorrection": "Count correction",
+  "stockUpdated": "Stock updated",
+  "packQuantityNote": "One scan counts {count} units",
+  "@packQuantityNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "locations": "Locations",
+  "location": "Location",
+  "allLocations": "All locations",
+  "webSource": "Sells online",
+  "transferStock": "Move stock",
+  "transferFrom": "From",
+  "transferTo": "To",
+  "transferNote": "Note",
+  "transferQuantity": "Quantity",
+  "transferCreated": "Stock moved",
+  "sameLocationError": "Pick two different locations",
+  "productCatalog": "Products",
+  "addProduct": "Add product",
+  "editProduct": "Edit product",
+  "productName": "Name",
+  "sku": "SKU",
+  "price": "Price",
+  "salePrice": "Sale price",
+  "description": "Description",
+  "shortDescription": "Short description",
+  "category": "Category",
+  "brand": "Brand",
+  "condition": "Condition",
+  "conditionNew": "New",
+  "conditionUsed": "Used",
+  "conditionLikeNew": "Like new",
+  "photos": "Photos",
+  "takePhoto": "Take photo",
+  "chooseFromLibrary": "Choose from library",
+  "setAsCover": "Set as cover",
+  "initialStock": "Starting stock",
+  "visibility": "Visibility",
+  "publishedOnline": "Visible in the online store",
+  "markNewArrival": "Show as new arrival",
+  "markLiquidated": "Show as clearance",
+  "markComingSoon": "Show as coming soon",
+  "productSaved": "Product saved",
+  "productCreated": "Product created",
+  "uploadingPhotos": "Uploading photos…",
+  "requiredField": "Required",
+  "invalidPrice": "Enter a valid price",
+  "pickCategory": "Pick a category",
+  "pickBrand": "Pick a brand",
+  "settings": "Settings",
+  "appearance": "Appearance",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "language": "Language",
+  "notifications": "Notifications",
+  "notifyNewOrders": "New orders",
+  "notifyLowStock": "Low stock warnings",
+  "pushUnavailable": "Background push is not set up for this build. Alerts arrive while the app is open.",
+  "account": "Account",
+  "store": "Store",
+  "role": "Role",
+  "roleOwner": "Owner",
+  "roleMember": "Member",
+  "signOutConfirm": "Sign out of this store?",
+  "about": "About",
+  "filters": "Filters",
+  "filter": "Filter",
+  "clearAll": "Clear all",
+  "showResults": "Show results",
+  "sortBy": "Sort by",
+  "sortNameAsc": "Name A-Z",
+  "sortPriceLow": "Price: low to high",
+  "sortPriceHigh": "Price: high to low",
+  "sortNewest": "Newest first",
+  "allCategories": "All categories",
+  "allBrands": "All brands",
+  "stockStatus": "Availability",
+  "promoFlags": "Labels",
+  "onlyNewArrivals": "New arrivals",
+  "onlyDiscounted": "On sale",
+  "onlyLiquidated": "Clearance",
+  "priceRange": "Price range",
+  "priceFrom": "From",
+  "priceTo": "To",
+  "activeFilters": "{count, plural, =1{1 filter} other{{count} filters}}",
+  "@activeFilters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "resultCount": "{count, plural, =0{No products} =1{1 product} other{{count} products}}",
+  "@resultCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterSearchNote": "Text search is applied to the filtered results.",
+  "deliveryLocation": "Delivery location",
+  "openInMaps": "Open in Google Maps",
+  "noMapPin": "No pin was dropped for this order",
+  "coordinatesCopied": "Coordinates copied",
+  "orderFilters": "Filter orders",
+  "status": "Status",
+  "dateRange": "Date",
+  "anyDate": "Any time",
+  "last7Days": "Last 7 days",
+  "last30Days": "Last 30 days",
+  "channel": "Channel",
+  "orderFilterNote": "Status and date are applied to the loaded orders."
+}
