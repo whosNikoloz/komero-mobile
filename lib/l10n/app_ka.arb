@@ -273,5 +273,13 @@
   "last7Days": "ბოლო 7 დღე",
   "last30Days": "ბოლო 30 დღე",
   "channel": "არხი",
-  "orderFilterNote": "სტატუსი და თარიღი ჩატვირთულ შეკვეთებზე მოქმედებს."
+  "orderFilterNote": "სტატუსი და თარიღი ჩატვირთულ შეკვეთებზე მოქმედებს.",
+
+  "notifNewOrderTitle": "ახალი შეკვეთა",
+  "notifPaymentTitle": "გადახდა მიღებულია",
+  "notifOrderBody": "#{number} · {total}",
+  "notifOrderBodyNamed": "#{number} · {total} · {customer}",
+  "notifOrderGroup": "{count, plural, =1{1 ახალი შეკვეთა} other{{count} ახალი შეკვეთა}}",
+  "notifLowStockOne": "{product} — დარჩა {count}",
+  "notifLowStockMany": "{count, plural, =1{1 პროდუქტს მარაგი ეწურება} other{{count} პროდუქტს მარაგი ეწურება}}"
 }

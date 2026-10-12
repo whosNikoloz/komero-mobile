@@ -5,6 +5,14 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Firebase Cloud Messaging. Applied here rather than in `plugins {}` because
+// that block is a restricted scope with no `file()` — and the guard matters:
+// the plugin hard-fails the build on a missing google-services.json, so a
+// clone without one still builds and the app falls back to SSE-only alerts.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "ge.komero.komero_mobile"
     compileSdk = flutter.compileSdkVersion
@@ -39,6 +47,17 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+
+            // Strips the unused Java/Kotlin plugin glue and resources. Dart
+            // code is unaffected (it is AOT-compiled into libapp.so), so this
+            // only touches the ~1.8 MB of dex and res — the plugins we use all
+            // ship their own consumer rules, see proguard-rules.pro.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

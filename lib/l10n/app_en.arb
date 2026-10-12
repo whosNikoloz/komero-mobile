@@ -287,5 +287,28 @@
   "last7Days": "Last 7 days",
   "last30Days": "Last 30 days",
   "channel": "Channel",
-  "orderFilterNote": "Status and date are applied to the loaded orders."
+  "orderFilterNote": "Status and date are applied to the loaded orders.",
+
+  "notifNewOrderTitle": "New order",
+  "notifPaymentTitle": "Payment received",
+  "notifOrderBody": "#{number} · {total}",
+  "@notifOrderBody": {
+    "placeholders": { "number": { "type": "String" }, "total": { "type": "String" } }
+  },
+  "notifOrderBodyNamed": "#{number} · {total} · {customer}",
+  "@notifOrderBodyNamed": {
+    "placeholders": { "number": { "type": "String" }, "total": { "type": "String" }, "customer": { "type": "String" } }
+  },
+  "notifOrderGroup": "{count, plural, =1{1 new order} other{{count} new orders}}",
+  "@notifOrderGroup": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "notifLowStockOne": "{product} is down to {count}",
+  "@notifLowStockOne": {
+    "placeholders": { "product": { "type": "String" }, "count": { "type": "int" } }
+  },
+  "notifLowStockMany": "{count, plural, =1{1 product is running low} other{{count} products are running low}}",
+  "@notifLowStockMany": {
+    "placeholders": { "count": { "type": "int" } }
+  }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "972927724854",
+    "project_id": "komero-aa345",
+    "storage_bucket": "komero-aa345.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972927724854:android:b8f8fb44f72c89c5189797",
+        "android_client_info": {
+          "package_name": "ge.komero.komero_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5pPP1ao_57UN2KJbN41fk5QcI9n6QLK0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

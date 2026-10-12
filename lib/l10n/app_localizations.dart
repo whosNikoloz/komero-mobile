@@ -1448,6 +1448,48 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Status and date are applied to the loaded orders.'**
   String get orderFilterNote;
+
+  /// No description provided for @notifNewOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get notifNewOrderTitle;
+
+  /// No description provided for @notifPaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get notifPaymentTitle;
+
+  /// No description provided for @notifOrderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'#{number} · {total}'**
+  String notifOrderBody(String number, String total);
+
+  /// No description provided for @notifOrderBodyNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'#{number} · {total} · {customer}'**
+  String notifOrderBodyNamed(String number, String total, String customer);
+
+  /// No description provided for @notifOrderGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new order} other{{count} new orders}}'**
+  String notifOrderGroup(int count);
+
+  /// No description provided for @notifLowStockOne.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} is down to {count}'**
+  String notifLowStockOne(String product, int count);
+
+  /// No description provided for @notifLowStockMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 product is running low} other{{count} products are running low}}'**
+  String notifLowStockMany(int count);
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {

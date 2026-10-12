@@ -757,4 +757,47 @@ class LRu extends L {
   @override
   String get orderFilterNote =>
       'Статус и дата применяются к загруженным заказам.';
+
+  @override
+  String get notifNewOrderTitle => 'Новый заказ';
+
+  @override
+  String get notifPaymentTitle => 'Платёж получен';
+
+  @override
+  String notifOrderBody(String number, String total) {
+    return '#$number · $total';
+  }
+
+  @override
+  String notifOrderBodyNamed(String number, String total, String customer) {
+    return '#$number · $total · $customer';
+  }
+
+  @override
+  String notifOrderGroup(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count новых заказов',
+      one: '1 новый заказ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifLowStockOne(String product, int count) {
+    return '$product — осталось $count';
+  }
+
+  @override
+  String notifLowStockMany(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count товаров заканчиваются',
+      one: '1 товар заканчивается',
+    );
+    return '$_temp0';
+  }
 }

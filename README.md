@@ -152,32 +152,70 @@ of the above take it. `KomeroApi.mainHeader(n)` is there if one starts to.
 The app builds and runs without Firebase — alerts then arrive only while the app
 is open, over the SSE order stream. To enable background push:
 
-1. Create the Firebase project, add an Android app with applicationId
-   `ge.komero.komero_mobile` and an iOS app with the same bundle id.
+1. Create the Firebase project, then add two apps to it. The ids differ — they
+   are not interchangeable:
+   - Android `applicationId`: `ge.komero.komero_mobile` (underscore)
+   - iOS `PRODUCT_BUNDLE_IDENTIFIER`: `ge.komero.komeroMobile` (camelCase)
 2. Drop `google-services.json` into `android/app/` and
    `GoogleService-Info.plist` into `ios/Runner/`.
-3. Add the Google services Gradle plugin:
-   - `android/settings.gradle.kts` plugins block:
-     `id("com.google.gms.google-services") version "4.4.2" apply false`
-   - `android/app/build.gradle.kts` plugins block:
-     `id("com.google.gms.google-services")`
+3. Android Gradle is already wired: `settings.gradle.kts` declares the Google
+   services plugin and `app/build.gradle.kts` applies it **only if
+   `google-services.json` exists**, because the plugin hard-fails the build on
+   a missing file. Nothing to edit — step 2 switches it on.
 4. iOS: enable Push Notifications + Background Modes (remote notifications) in
-   Xcode and upload the APNs key to Firebase.
+   Xcode and upload the APNs key to Firebase. `Info.plist` already declares
+   `UIBackgroundModes: remote-notification`.
+5. Service-account key for the backend: Firebase → Project settings → Service
+   accounts → *Generate new private key*. It goes to the API, never into the
+   app. See `PUSH_NOTIFICATIONS_BACKEND_GUIDE.md` at the repo root.
 
 `PushService.init()` catches a missing Firebase config and degrades to
-stream-only alerts, so step 1-4 can land later without breaking the build.
+stream-only alerts, so steps 1-5 can land later without breaking the build.
+
+### Finishing iOS on a Mac
+
+Everything that can be done from Windows is done: `GoogleService-Info.plist` is
+in `ios/Runner/`, `Info.plist` declares `UIBackgroundModes`, `AppDelegate.swift`
+sets the `UNUserNotificationCenter` delegate, and the deployment target is 15.0
+(firebase_core 4.x floors there — 13.0 fails `pod install`).
+
+The APNs key and its upload to Firebase → Cloud Messaging are browser-only, so
+do those from any machine. What is left needs Xcode:
+
+1. Open `ios/Runner.xcworkspace` — the **workspace**, not the `.xcodeproj`.
+2. Drag `GoogleService-Info.plist` from the `Runner` folder into Xcode's
+   sidebar, ticking the **Runner target**. It is already on disk but not in
+   `project.pbxproj`, so it will not reach Copy Bundle Resources on its own and
+   Firebase will not find it at runtime. This is the step people miss.
+3. Runner target → Signing & Capabilities → set your Team, then `+ Capability`:
+   - **Push Notifications**
+   - **Background Modes** → tick *Remote notifications*
+   - **Time Sensitive Notifications** — `PushService` sets
+     `interruptionLevel: timeSensitive`; without the entitlement iOS silently
+     downgrades it and Focus modes hold the order.
+4. Commit the `Runner.entitlements` Xcode generates.
+5. `cd ios && pod install && cd .. && flutter run --release` on a **real
+   device** — push never works on the Simulator.
+
+**Tap handling.** Tapping an order notification opens that order. The id comes
+from the push's `data.orderId` (background/killed, via
+`onMessageOpenedApp`/`getInitialMessage`) or from the local notification's
+payload (foreground, SSE path). `orderTapsProvider` carries it; `AppShell`
+listens and pushes `OrderDetailScreen`. A tap that lands before the shell is
+mounted — a cold start from a push — is held, not dropped.
 
 ## Known backend gaps
 
 These are API limitations, not missing UI. Each is marked in the code where it
 bites:
 
-1. **No device-token registration route.** FCM can deliver to a device, but
-   nothing in `commerce/` stores which device belongs to which operator, so the
-   backend cannot target a push. `PushService.registerDevice` POSTs to
-   `api/admin/devices` and swallows the 404 — implement that route (tenant-scoped
-   by `X-Client-Domain`, body `{ token, platform }`) and background push starts
-   working with no client change.
+1. **No device-token routes, no FCM send.** The API stores no device tokens, so
+   it cannot target a push, and nothing sends one on a new order.
+   `PushService.registerDevice` POSTs `api/admin/devices` and
+   `unregisterDevice` DELETEs `api/admin/devices/{token}`; both swallow the 404.
+   Full spec — tables, payload shape, `channel_id`, dead-token pruning — is in
+   `PUSH_NOTIFICATIONS_BACKEND_GUIDE.md` at the repo root. Background push
+   starts working with **no client change** once those ship.
 2. **No payment capture or refund endpoint.** `Order/update-order-status` with
    `Refunded` is the only lever, and it records the refund without moving money.
    The app says so in the confirmation dialog rather than implying a transfer.

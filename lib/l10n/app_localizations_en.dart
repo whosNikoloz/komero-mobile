@@ -745,4 +745,47 @@ class LEn extends L {
   @override
   String get orderFilterNote =>
       'Status and date are applied to the loaded orders.';
+
+  @override
+  String get notifNewOrderTitle => 'New order';
+
+  @override
+  String get notifPaymentTitle => 'Payment received';
+
+  @override
+  String notifOrderBody(String number, String total) {
+    return '#$number · $total';
+  }
+
+  @override
+  String notifOrderBodyNamed(String number, String total, String customer) {
+    return '#$number · $total · $customer';
+  }
+
+  @override
+  String notifOrderGroup(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new orders',
+      one: '1 new order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifLowStockOne(String product, int count) {
+    return '$product is down to $count';
+  }
+
+  @override
+  String notifLowStockMany(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products are running low',
+      one: '1 product is running low',
+    );
+    return '$_temp0';
+  }
 }

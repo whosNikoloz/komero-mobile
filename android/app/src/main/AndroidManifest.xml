@@ -32,6 +32,22 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Read by the system when it draws an FCM push on its own — app
+             killed or backgrounded, no Dart running. Without these it falls
+             back to the launcher icon, which Android masks to a featureless
+             white circle, and to the system grey accent. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent" />
+        <!-- Must match PushService._ordersChannel, or a push with no
+             channel_id lands in a low-importance fallback channel. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="komero_orders" />
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

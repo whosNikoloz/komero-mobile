@@ -45,6 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Lets FCM wake the app for a data-only order push. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan product barcodes and photograph products for your store.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

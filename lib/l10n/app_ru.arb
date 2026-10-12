@@ -273,5 +273,13 @@
   "last7Days": "Последние 7 дней",
   "last30Days": "Последние 30 дней",
   "channel": "Канал",
-  "orderFilterNote": "Статус и дата применяются к загруженным заказам."
+  "orderFilterNote": "Статус и дата применяются к загруженным заказам.",
+
+  "notifNewOrderTitle": "Новый заказ",
+  "notifPaymentTitle": "Платёж получен",
+  "notifOrderBody": "#{number} · {total}",
+  "notifOrderBodyNamed": "#{number} · {total} · {customer}",
+  "notifOrderGroup": "{count, plural, =1{1 новый заказ} other{{count} новых заказов}}",
+  "notifLowStockOne": "{product} — осталось {count}",
+  "notifLowStockMany": "{count, plural, =1{1 товар заканчивается} other{{count} товаров заканчиваются}}"
 }

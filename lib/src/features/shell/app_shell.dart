@@ -5,6 +5,7 @@ import '../../core/notifications.dart';
 import '../../l10n_ext.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../inventory/inventory_screen.dart';
+import '../orders/order_detail_screen.dart';
 import '../orders/orders_screen.dart';
 import '../products/products_screen.dart';
 import '../settings/settings_screen.dart';
@@ -30,6 +31,21 @@ class _AppShellState extends ConsumerState<AppShell> {
     // signed-in session regardless of which tab is on screen.
     ref.watch(orderAlertsProvider);
     ref.watch(lowStockAlertProvider);
+
+    // Tapping an order notification opens that order. The shell is the lowest
+    // widget that is always mounted while signed in, so it owns this rather
+    // than a global navigator key.
+    ref.listen(orderTapsProvider, (_, next) {
+      final orderId = next.value;
+
+      if (orderId == null || !mounted) return;
+
+      setState(() => _index = 1); // Land on Orders, so Back has somewhere to go.
+
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: orderId)),
+      );
+    });
 
     return Scaffold(
       body: IndexedStack(
