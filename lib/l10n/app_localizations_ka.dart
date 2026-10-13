@@ -57,6 +57,16 @@ class LKa extends L {
   String get permissionDenied => 'ამისთვის უფლება არ გაქვთ';
 
   @override
+  String get welcomeTitle => 'მართეთ მაღაზია ტელეფონიდან';
+
+  @override
+  String get welcomeSubtitle =>
+      'შეკვეთები, მარაგი და პროდუქტები — სადაც არ უნდა იყოთ';
+
+  @override
+  String get continueLabel => 'გაგრძელება';
+
+  @override
   String get loginTitle => 'შედით თქვენს მაღაზიაში';
 
   @override
@@ -78,6 +88,9 @@ class LKa extends L {
 
   @override
   String get password => 'პაროლი';
+
+  @override
+  String get rememberMe => 'დამიმახსოვრე';
 
   @override
   String get signIn => 'შესვლა';
@@ -497,6 +510,146 @@ class LKa extends L {
 
   @override
   String get salePrice => 'ფასდაკლებული ფასი';
+
+  @override
+  String get addPhoto => 'ფოტოს დამატება';
+
+  @override
+  String addValue(String field) {
+    return 'დაამატეთ $field';
+  }
+
+  @override
+  String selectValue(String field) {
+    return 'აირჩიეთ $field';
+  }
+
+  @override
+  String get noneSelected => 'არცერთი';
+
+  @override
+  String get catalog => 'კატალოგი';
+
+  @override
+  String get categories => 'კატეგორიები';
+
+  @override
+  String get brands => 'ბრენდები';
+
+  @override
+  String get productGroups => 'პროდუქტების ჯგუფები';
+
+  @override
+  String get addNew => 'ახლის დამატება';
+
+  @override
+  String get edit => 'რედაქტირება';
+
+  @override
+  String get delete => 'წაშლა';
+
+  @override
+  String get deleted => 'წაიშალა';
+
+  @override
+  String get saved => 'შენახულია';
+
+  @override
+  String get name => 'სახელი';
+
+  @override
+  String deleteItem(String name) {
+    return 'წავშალოთ $name?';
+  }
+
+  @override
+  String get deleteCatalogWarning =>
+      'პროდუქტებს დანარჩენი მონაცემები შერჩებათ, მხოლოდ ეს წაიშლება.';
+
+  @override
+  String get storeContent => 'მაღაზიის კონტენტი';
+
+  @override
+  String get promotions => 'ფასდაკლებები';
+
+  @override
+  String get newDiscount => 'ახალი ფასდაკლება';
+
+  @override
+  String get percentOff => '% ფასდაკლება';
+
+  @override
+  String get amountOff => 'თანხის ფასდაკლება';
+
+  @override
+  String get couponCode => 'პრომო კოდი';
+
+  @override
+  String get couponCodeHelp =>
+      'ცარიელი დატოვეთ, თუ ფასდაკლება ავტომატურად უნდა მოქმედებდეს.';
+
+  @override
+  String get automaticDiscount => 'მოქმედებს ავტომატურად';
+
+  @override
+  String couponCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count კოდი',
+      one: '1 კოდი',
+      zero: 'კოდები არაა',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statusActive => 'აქტიური';
+
+  @override
+  String get statusPaused => 'შეჩერებული';
+
+  @override
+  String get statusScheduled => 'დაგეგმილი';
+
+  @override
+  String get statusDraft => 'მონახაზი';
+
+  @override
+  String get statusEnded => 'დასრულდა';
+
+  @override
+  String get pause => 'შეჩერება';
+
+  @override
+  String get activate => 'გააქტიურება';
+
+  @override
+  String get archive => 'არქივში';
+
+  @override
+  String get blog => 'ბლოგი';
+
+  @override
+  String get postBody => 'პოსტის ტექსტი';
+
+  @override
+  String get published => 'გამოქვეყნებული';
+
+  @override
+  String get publish => 'გამოქვეყნება';
+
+  @override
+  String get title => 'სათაური';
+
+  @override
+  String get faqs => 'ხშირი კითხვები';
+
+  @override
+  String get question => 'კითხვა';
+
+  @override
+  String get answer => 'პასუხი';
 
   @override
   String get description => 'აღწერა';

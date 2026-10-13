@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/net/api_client.dart';
@@ -32,6 +33,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   bool _busy = false;
   bool _obscure = true;
+  bool _remember = true;
   String? _error;
 
   /// The domain whose branding is currently being shown. Set on a debounce so
@@ -56,6 +58,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
 
     _domain.addListener(_schedulePreview);
+
+    _restorePassword();
+  }
+
+  /// Secure storage is async, so the saved password lands a frame or two after
+  /// the form is built rather than with it.
+  Future<void> _restorePassword() async {
+    final saved = await ref.read(sessionProvider.notifier).rememberedPassword();
+
+    if (!mounted || saved == null || saved.isEmpty) return;
+
+    setState(() => _password.text = saved);
   }
 
   /// Look up the store's branding once typing settles. A miss is silent — the
@@ -107,6 +121,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             domain: domain,
             email: result.email,
           );
+
+      await ref
+          .read(sessionProvider.notifier)
+          .setRememberedPassword(_remember ? _password.text : null);
 
       // A token that cannot read /User/me for this store is not a usable
       // session — fail here rather than on an empty dashboard.
@@ -182,11 +200,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // The language control belongs here, not only in
                     // settings: an operator who cannot read the form cannot
                     // reach settings to fix it.
-                    const Row(
+                    Row(
                       children: [
-                        KomeroLogo(size: 52),
-                        Spacer(),
-                        LanguageButton(),
+                        // Reached by a push from the welcome screen, so it
+                        // needs its own way back — there is no app bar here.
+                        if (Navigator.of(context).canPop())
+                          IconButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: const Icon(Icons.arrow_back),
+                          )
+                        else
+                          const KomeroLogo(size: 52),
+                        const Spacer(),
+                        const LanguageButton(),
                       ],
                     ),
                     const SizedBox(height: 28),
@@ -256,6 +282,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       validator: (v) =>
                           (v == null || v.isEmpty) ? l.enterPassword : null,
                     ),
+                    SwitchListTile(
+                      value: _remember,
+                      onChanged: _busy
+                          ? null
+                          : (v) => setState(() => _remember = v),
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        l.rememberMe,
+                        style: TextStyle(fontSize: 14, color: c.textSecondary),
+                      ),
+                    ),
                     if (_error != null) ...[
                       const SizedBox(height: 16),
                       Container(
@@ -281,7 +318,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ],
                     const SizedBox(height: 24),
                     FilledButton(
-                      onPressed: _busy ? null : _submit,
+                      onPressed: _busy
+                          ? null
+                          : () {
+                              HapticFeedback.lightImpact();
+                              _submit();
+                            },
                       child: _busy
                           ? SizedBox(
                               width: 20,

@@ -11,6 +11,8 @@ import '../../data/repositories.dart';
 import '../../l10n_ext.dart';
 import '../../models/product.dart';
 import '../../widgets/common.dart';
+import '../../widgets/editor.dart';
+import '../../widgets/sheet.dart';
 import 'products_screen.dart' show productListProvider;
 
 final _categoriesProvider =
@@ -244,6 +246,84 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
     }
   }
 
+  /// Camera or library — asked once, here, instead of standing as two
+  /// permanent tiles in the photo strip.
+  Future<void> _choosePhotoSource() async {
+    final l = context.l;
+
+    final fromCamera = await showKomeroSheet<bool>(
+      context,
+      title: l.addPhoto,
+      builder: (sheetContext) => Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.photo_camera_outlined),
+            title: Text(l.takePhoto),
+            onTap: () => Navigator.of(sheetContext).pop(true),
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined),
+            title: Text(l.chooseFromLibrary),
+            onTap: () => Navigator.of(sheetContext).pop(false),
+          ),
+        ],
+      ),
+    );
+
+    if (fromCamera == null || !mounted) return;
+
+    await _pickPhotos(fromCamera: fromCamera);
+  }
+
+  /// A long field gets the whole screen. The controller stays the state, so
+  /// the save path is untouched by where the text was typed.
+  Future<void> _editText({
+    required String title,
+    required TextEditingController controller,
+  }) async {
+    final text = await editText(
+      context,
+      title: title,
+      subtitle: _name.text.trim().isEmpty ? null : _name.text.trim(),
+      initial: controller.text,
+    );
+
+    if (text == null || !mounted) return;
+
+    setState(() => controller.text = text);
+  }
+
+  Future<void> _pick({
+    required String title,
+    required List<NamedRef> items,
+    required String? selected,
+    required ValueChanged<String?> onPicked,
+  }) async {
+    final chosen = await pickOne<NamedRef>(
+      context,
+      title: title,
+      items: items,
+      labelOf: (item) => item.name,
+      selected: _refOf(items, selected),
+    );
+
+    // null is "backed out"; a result carrying a null value is "cleared it".
+    if (chosen == null || !mounted) return;
+
+    onPicked(chosen.value?.id);
+  }
+
+  static NamedRef? _refOf(List<NamedRef> items, String? id) {
+    for (final item in items) {
+      if (item.id == id) return item;
+    }
+
+    return null;
+  }
+
+  static String? _nameOf(List<NamedRef> items, String? id) =>
+      _refOf(items, id)?.name;
+
   @override
   Widget build(BuildContext context) {
     final l = context.l;
@@ -273,17 +353,6 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _PhotoButton(
-                    icon: Icons.photo_camera_outlined,
-                    label: l.takePhoto,
-                    onTap: _busy ? null : () => _pickPhotos(fromCamera: true),
-                  ),
-                  const SizedBox(width: 8),
-                  _PhotoButton(
-                    icon: Icons.photo_library_outlined,
-                    label: l.chooseFromLibrary,
-                    onTap: _busy ? null : () => _pickPhotos(fromCamera: false),
-                  ),
                   for (final image in existingImages) ...[
                     const SizedBox(width: 8),
                     EntityThumb(path: image.imagePath, size: 92),
@@ -323,13 +392,32 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
                       ],
                     ),
                   ],
+                  // The add tile sits after the photos, not before them: it is
+                  // the end of the strip you reach by scrolling past what is
+                  // already there.
+                  if (existingImages.isNotEmpty || _newPhotos.isNotEmpty)
+                    const SizedBox(width: 8),
+                  _AddPhotoTile(onTap: _busy ? null : _choosePhotoSource),
                 ],
               ),
             ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _name,
-              decoration: InputDecoration(labelText: l.productName),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.4,
+                color: c.text,
+              ),
+              decoration: InputDecoration(
+                hintText: l.productName,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                filled: false,
+                contentPadding: EdgeInsets.zero,
+              ),
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? l.requiredField : null,
             ),
@@ -371,34 +459,39 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
             ],
             const SizedBox(height: 24),
             SectionTitle(l.category),
-            DropdownButtonFormField<String>(
-              initialValue: _categoryId,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: l.category),
-              items: [
-                for (final cat in categories)
-                  DropdownMenuItem(
-                    value: cat.id,
-                    child: Text(cat.name, overflow: TextOverflow.ellipsis),
+            Panel(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  EditorRow(
+                    icon: Icons.category_outlined,
+                    label: _categoryId == null
+                        ? l.selectValue(l.category)
+                        : l.category,
+                    value: _nameOf(categories, _categoryId),
+                    onTap: () => _pick(
+                      title: l.category,
+                      items: categories,
+                      selected: _categoryId,
+                      onPicked: (id) => setState(() => _categoryId = id),
+                    ),
                   ),
-              ],
-              onChanged: (v) => setState(() => _categoryId = v),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _brandId,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: l.brand),
-              items: [
-                for (final brand in brands)
-                  DropdownMenuItem(
-                    value: brand.id,
-                    child: Text(brand.name, overflow: TextOverflow.ellipsis),
+                  const _RowDivider(),
+                  EditorRow(
+                    icon: Icons.sell_outlined,
+                    label: _brandId == null ? l.selectValue(l.brand) : l.brand,
+                    value: _nameOf(brands, _brandId),
+                    onTap: () => _pick(
+                      title: l.brand,
+                      items: brands,
+                      selected: _brandId,
+                      onPicked: (id) => setState(() => _brandId = id),
+                    ),
                   ),
-              ],
-              onChanged: (v) => setState(() => _brandId = v),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             DropdownButtonFormField<ProductCondition>(
               initialValue: _condition,
               decoration: InputDecoration(labelText: l.condition),
@@ -420,16 +513,33 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
             ),
             const SizedBox(height: 24),
             SectionTitle(l.description),
-            TextFormField(
-              controller: _shortDescription,
-              maxLines: 2,
-              decoration: InputDecoration(labelText: l.shortDescription),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _description,
-              maxLines: 5,
-              decoration: InputDecoration(labelText: l.description),
+            Panel(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  EditorRow(
+                    label: _shortDescription.text.trim().isEmpty
+                        ? l.addValue(l.shortDescription)
+                        : l.shortDescription,
+                    value: _shortDescription.text,
+                    onTap: () => _editText(
+                      title: l.shortDescription,
+                      controller: _shortDescription,
+                    ),
+                  ),
+                  const _RowDivider(),
+                  EditorRow(
+                    label: _description.text.trim().isEmpty
+                        ? l.addValue(l.description)
+                        : l.description,
+                    value: _description.text,
+                    onTap: () => _editText(
+                      title: l.description,
+                      controller: _description,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 24),
             SectionTitle(l.visibility),
@@ -489,15 +599,10 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
   }
 }
 
-class _PhotoButton extends StatelessWidget {
-  const _PhotoButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+/// The tile at the end of the photo strip.
+class _AddPhotoTile extends StatelessWidget {
+  const _AddPhotoTile({required this.onTap});
 
-  final IconData icon;
-  final String label;
   final VoidCallback? onTap;
 
   @override
@@ -506,33 +611,27 @@ class _PhotoButton extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(10),
       child: Container(
         width: 92,
         height: 92,
         decoration: BoxDecoration(
           color: c.surface,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: c.border),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 22, color: c.textSecondary),
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 10, color: c.textMuted),
-              ),
-            ),
-          ],
-        ),
+        child: Icon(Icons.add, size: 26, color: c.textSecondary),
       ),
     );
+  }
+}
+
+/// Hairline between two [EditorRow]s inside one panel.
+class _RowDivider extends StatelessWidget {
+  const _RowDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(height: 1, indent: 48, color: context.c.border);
   }
 }

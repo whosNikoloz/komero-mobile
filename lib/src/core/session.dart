@@ -45,6 +45,7 @@ class SessionController extends Notifier<Session> {
   static const _kToken = 'komero_operator_token';
   static const _kDomain = 'komero_store_domain';
   static const _kEmail = 'komero_operator_email';
+  static const _kPassword = 'komero_operator_password';
 
   // v11+ encrypts on Android by default; only the iOS accessibility class is
   // worth stating — the token must survive a reboot before first unlock being
@@ -93,6 +94,31 @@ class SessionController extends Notifier<Session> {
 
     state = state.copyWith(domain: normalized, restored: true);
     (await SharedPreferences.getInstance()).setString(_kDomain, normalized);
+  }
+
+  /// The saved password, for pre-filling the sign-in form. Kept in secure
+  /// storage — the keychain on iOS, the encrypted keystore on Android — so it
+  /// is no more exposed than the token itself, and only when the operator
+  /// asked for it to be remembered.
+  Future<String?> rememberedPassword() async {
+    try {
+      return await _secure.read(key: _kPassword);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> setRememberedPassword(String? password) async {
+    try {
+      if (password == null || password.isEmpty) {
+        await _secure.delete(key: _kPassword);
+      } else {
+        await _secure.write(key: _kPassword, value: password);
+      }
+    } catch (_) {
+      // A device with no usable keystore simply does not remember it; that is
+      // not a reason to fail a sign-in that otherwise worked.
+    }
   }
 
   Future<void> signIn({

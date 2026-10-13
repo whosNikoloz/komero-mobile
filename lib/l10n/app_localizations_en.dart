@@ -57,6 +57,15 @@ class LEn extends L {
   String get permissionDenied => 'You do not have permission for this';
 
   @override
+  String get welcomeTitle => 'Run your store from your pocket';
+
+  @override
+  String get welcomeSubtitle => 'Orders, stock and products — wherever you are';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
   String get loginTitle => 'Sign in to your store';
 
   @override
@@ -77,6 +86,9 @@ class LEn extends L {
 
   @override
   String get password => 'Password';
+
+  @override
+  String get rememberMe => 'Remember me';
 
   @override
   String get signIn => 'Sign in';
@@ -497,6 +509,146 @@ class LEn extends L {
 
   @override
   String get salePrice => 'Sale price';
+
+  @override
+  String get addPhoto => 'Add photo';
+
+  @override
+  String addValue(String field) {
+    return 'Add $field';
+  }
+
+  @override
+  String selectValue(String field) {
+    return 'Select $field';
+  }
+
+  @override
+  String get noneSelected => 'None';
+
+  @override
+  String get catalog => 'Catalog';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get brands => 'Brands';
+
+  @override
+  String get productGroups => 'Product groups';
+
+  @override
+  String get addNew => 'Add new';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deleted => 'Deleted';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String deleteItem(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deleteCatalogWarning =>
+      'Products using it keep their other details, but lose this one.';
+
+  @override
+  String get storeContent => 'Store content';
+
+  @override
+  String get promotions => 'Discounts';
+
+  @override
+  String get newDiscount => 'New discount';
+
+  @override
+  String get percentOff => '% off';
+
+  @override
+  String get amountOff => 'Amount off';
+
+  @override
+  String get couponCode => 'Promo code';
+
+  @override
+  String get couponCodeHelp =>
+      'Leave empty to apply the discount automatically.';
+
+  @override
+  String get automaticDiscount => 'Applies automatically';
+
+  @override
+  String couponCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count codes',
+      one: '1 code',
+      zero: 'No codes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusPaused => 'Paused';
+
+  @override
+  String get statusScheduled => 'Scheduled';
+
+  @override
+  String get statusDraft => 'Draft';
+
+  @override
+  String get statusEnded => 'Ended';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get activate => 'Activate';
+
+  @override
+  String get archive => 'Archive';
+
+  @override
+  String get blog => 'Blog';
+
+  @override
+  String get postBody => 'Post text';
+
+  @override
+  String get published => 'Published';
+
+  @override
+  String get publish => 'Publish';
+
+  @override
+  String get title => 'Title';
+
+  @override
+  String get faqs => 'FAQ';
+
+  @override
+  String get question => 'Question';
+
+  @override
+  String get answer => 'Answer';
 
   @override
   String get description => 'Description';

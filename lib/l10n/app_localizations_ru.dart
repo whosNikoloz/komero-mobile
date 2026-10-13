@@ -57,6 +57,15 @@ class LRu extends L {
   String get permissionDenied => 'У вас нет прав на это действие';
 
   @override
+  String get welcomeTitle => 'Магазин — в вашем кармане';
+
+  @override
+  String get welcomeSubtitle => 'Заказы, склад и товары — где бы вы ни были';
+
+  @override
+  String get continueLabel => 'Продолжить';
+
+  @override
   String get loginTitle => 'Войдите в свой магазин';
 
   @override
@@ -77,6 +86,9 @@ class LRu extends L {
 
   @override
   String get password => 'Пароль';
+
+  @override
+  String get rememberMe => 'Запомнить меня';
 
   @override
   String get signIn => 'Войти';
@@ -505,6 +517,146 @@ class LRu extends L {
 
   @override
   String get salePrice => 'Цена со скидкой';
+
+  @override
+  String get addPhoto => 'Добавить фото';
+
+  @override
+  String addValue(String field) {
+    return 'Добавить: $field';
+  }
+
+  @override
+  String selectValue(String field) {
+    return 'Выбрать: $field';
+  }
+
+  @override
+  String get noneSelected => 'Не выбрано';
+
+  @override
+  String get catalog => 'Каталог';
+
+  @override
+  String get categories => 'Категории';
+
+  @override
+  String get brands => 'Бренды';
+
+  @override
+  String get productGroups => 'Группы товаров';
+
+  @override
+  String get addNew => 'Добавить';
+
+  @override
+  String get edit => 'Изменить';
+
+  @override
+  String get delete => 'Удалить';
+
+  @override
+  String get deleted => 'Удалено';
+
+  @override
+  String get saved => 'Сохранено';
+
+  @override
+  String get name => 'Название';
+
+  @override
+  String deleteItem(String name) {
+    return 'Удалить $name?';
+  }
+
+  @override
+  String get deleteCatalogWarning =>
+      'У товаров останутся остальные данные, пропадёт только это.';
+
+  @override
+  String get storeContent => 'Контент магазина';
+
+  @override
+  String get promotions => 'Скидки';
+
+  @override
+  String get newDiscount => 'Новая скидка';
+
+  @override
+  String get percentOff => '% скидки';
+
+  @override
+  String get amountOff => 'Скидка суммой';
+
+  @override
+  String get couponCode => 'Промокод';
+
+  @override
+  String get couponCodeHelp =>
+      'Оставьте пустым, чтобы скидка применялась автоматически.';
+
+  @override
+  String get automaticDiscount => 'Применяется автоматически';
+
+  @override
+  String couponCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count кодов',
+      one: '1 код',
+      zero: 'Нет кодов',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statusActive => 'Активна';
+
+  @override
+  String get statusPaused => 'На паузе';
+
+  @override
+  String get statusScheduled => 'Запланирована';
+
+  @override
+  String get statusDraft => 'Черновик';
+
+  @override
+  String get statusEnded => 'Завершена';
+
+  @override
+  String get pause => 'Пауза';
+
+  @override
+  String get activate => 'Включить';
+
+  @override
+  String get archive => 'В архив';
+
+  @override
+  String get blog => 'Блог';
+
+  @override
+  String get postBody => 'Текст поста';
+
+  @override
+  String get published => 'Опубликован';
+
+  @override
+  String get publish => 'Опубликовать';
+
+  @override
+  String get title => 'Заголовок';
+
+  @override
+  String get faqs => 'Вопросы и ответы';
+
+  @override
+  String get question => 'Вопрос';
+
+  @override
+  String get answer => 'Ответ';
 
   @override
   String get description => 'Описание';

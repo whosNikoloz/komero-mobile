@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -7,15 +8,20 @@ import '../../data/repositories.dart';
 import '../../l10n_ext.dart';
 import '../../models/me.dart';
 import '../../models/product.dart';
+import '../../widgets/app_scaffold.dart';
 import '../../widgets/common.dart';
+import '../../widgets/sheet.dart';
 import '../dashboard/dashboard_screen.dart' show meProvider;
+import 'catalog_screen.dart';
 import 'product_edit_screen.dart';
 import 'product_filter_sheet.dart';
 
-final productSearchProvider = StateProvider<String>((_) => '');
+// autoDispose: the filter holds the previous store's category and brand ids,
+// which mean nothing in the next one. See the note in main.dart.
+final productSearchProvider = StateProvider.autoDispose<String>((_) => '');
 
 final productFilterProvider =
-    StateProvider<ProductFilter>((_) => const ProductFilter());
+    StateProvider.autoDispose<ProductFilter>((_) => const ProductFilter());
 
 final productListProvider = FutureProvider<List<Product>>((ref) {
   return ref.watch(productRepositoryProvider).browse(
@@ -35,25 +41,27 @@ class ProductsScreen extends ConsumerWidget {
     final filter = ref.watch(productFilterProvider);
     final canManage = ref.watch(meProvider).value?.can(Perm.products) ?? false;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l.productCatalog),
-        actions: [
-          _FilterAction(filter: filter),
-          const SizedBox(width: 8),
-        ],
-      ),
-      floatingActionButton: canManage
-          ? FloatingActionButton.extended(
-              onPressed: () => Navigator.of(context).push(
+    return AppScaffold(
+      title: l.navProducts,
+      // The title is the way into the rest of the catalog — categories, brands
+      // and variant groups all hang off Products rather than earning tabs of
+      // their own.
+      onTitleTap: () => showCatalogSwitcher(context),
+      actions: [
+        if (canManage)
+          IconButton(
+            tooltip: l.addProduct,
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ProductEditScreen()),
-              ),
-              backgroundColor: c.primary,
-              foregroundColor: c.primaryForeground,
-              icon: const Icon(Icons.add),
-              label: Text(l.addProduct),
-            )
-          : null,
+              );
+            },
+            icon: const Icon(Icons.add),
+          ),
+        _FilterAction(filter: filter),
+        const SizedBox(width: 4),
+      ],
       body: Column(
         children: [
           Padding(
@@ -306,4 +314,42 @@ class _FilterAction extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The sections behind the Products title. Products itself is the one you are
+/// on, so it is listed but inert — it is there to say where you are, the way
+/// the web admin's catalog menu does.
+Future<void> showCatalogSwitcher(BuildContext context) async {
+  final l = context.l;
+  final c = context.c;
+
+  final kind = await showKomeroSheet<CatalogKind>(
+    context,
+    title: l.catalog,
+    builder: (sheetContext) => Column(
+      children: [
+        ListTile(
+          leading: Icon(Icons.inventory_2_outlined, color: c.primary),
+          title: Text(
+            l.navProducts,
+            style: TextStyle(fontWeight: FontWeight.w600, color: c.primary),
+          ),
+          trailing: Icon(Icons.check, size: 20, color: c.primary),
+          onTap: () => Navigator.of(sheetContext).pop(),
+        ),
+        for (final kind in CatalogKind.values)
+          ListTile(
+            leading: Icon(kind.icon),
+            title: Text(kind.title(l)),
+            onTap: () => Navigator.of(sheetContext).pop(kind),
+          ),
+      ],
+    ),
+  );
+
+  if (kind == null || !context.mounted) return;
+
+  await Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => CatalogScreen(kind: kind)),
+  );
 }

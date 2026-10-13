@@ -195,6 +195,24 @@ abstract class L {
   /// **'You do not have permission for this'**
   String get permissionDenied;
 
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Run your store from your pocket'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders, stock and products — wherever you are'**
+  String get welcomeSubtitle;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
   /// No description provided for @loginTitle.
   ///
   /// In en, this message translates to:
@@ -236,6 +254,12 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
+
+  /// No description provided for @rememberMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me'**
+  String get rememberMe;
 
   /// No description provided for @signIn.
   ///
@@ -992,6 +1016,252 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Sale price'**
   String get salePrice;
+
+  /// No description provided for @addPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get addPhoto;
+
+  /// No description provided for @addValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {field}'**
+  String addValue(String field);
+
+  /// No description provided for @selectValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {field}'**
+  String selectValue(String field);
+
+  /// No description provided for @noneSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get noneSelected;
+
+  /// No description provided for @catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get catalog;
+
+  /// No description provided for @categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// No description provided for @brands.
+  ///
+  /// In en, this message translates to:
+  /// **'Brands'**
+  String get brands;
+
+  /// No description provided for @productGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Product groups'**
+  String get productGroups;
+
+  /// No description provided for @addNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add new'**
+  String get addNew;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get deleted;
+
+  /// No description provided for @saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get saved;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @deleteItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteItem(String name);
+
+  /// No description provided for @deleteCatalogWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Products using it keep their other details, but lose this one.'**
+  String get deleteCatalogWarning;
+
+  /// No description provided for @storeContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Store content'**
+  String get storeContent;
+
+  /// No description provided for @promotions.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts'**
+  String get promotions;
+
+  /// No description provided for @newDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'New discount'**
+  String get newDiscount;
+
+  /// No description provided for @percentOff.
+  ///
+  /// In en, this message translates to:
+  /// **'% off'**
+  String get percentOff;
+
+  /// No description provided for @amountOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount off'**
+  String get amountOff;
+
+  /// No description provided for @couponCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo code'**
+  String get couponCode;
+
+  /// No description provided for @couponCodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to apply the discount automatically.'**
+  String get couponCodeHelp;
+
+  /// No description provided for @automaticDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies automatically'**
+  String get automaticDiscount;
+
+  /// No description provided for @couponCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No codes} =1{1 code} other{{count} codes}}'**
+  String couponCount(int count);
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get statusPaused;
+
+  /// No description provided for @statusScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get statusScheduled;
+
+  /// No description provided for @statusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get statusDraft;
+
+  /// No description provided for @statusEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get statusEnded;
+
+  /// No description provided for @pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pause;
+
+  /// No description provided for @activate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get activate;
+
+  /// No description provided for @archive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archive;
+
+  /// No description provided for @blog.
+  ///
+  /// In en, this message translates to:
+  /// **'Blog'**
+  String get blog;
+
+  /// No description provided for @postBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Post text'**
+  String get postBody;
+
+  /// No description provided for @published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get published;
+
+  /// No description provided for @publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get publish;
+
+  /// No description provided for @title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get title;
+
+  /// No description provided for @faqs.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQ'**
+  String get faqs;
+
+  /// No description provided for @question.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get question;
+
+  /// No description provided for @answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer'**
+  String get answer;
 
   /// No description provided for @description.
   ///

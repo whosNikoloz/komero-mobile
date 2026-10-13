@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -7,6 +8,7 @@ import '../../data/repositories.dart';
 import '../../l10n_ext.dart';
 import '../../models/inventory.dart';
 import '../../models/me.dart';
+import '../../widgets/app_scaffold.dart';
 import '../../widgets/common.dart';
 import '../dashboard/dashboard_screen.dart' show meProvider;
 import 'scanner_screen.dart';
@@ -15,10 +17,13 @@ import 'transfer_screen.dart';
 
 enum StockFilter { all, low, out }
 
-final stockFilterProvider = StateProvider((_) => StockFilter.all);
+// autoDispose so the filter, and the store-specific location id below,
+// reset when the shell unmounts on sign-out — they must not carry over into
+// the next store, whose locations are different rows entirely.
+final stockFilterProvider = StateProvider.autoDispose((_) => StockFilter.all);
 
 /// null = every location pooled, which is what the pre-locations API returns.
-final selectedLocationProvider = StateProvider<String?>((_) => null);
+final selectedLocationProvider = StateProvider.autoDispose<String?>((_) => null);
 
 final locationsProvider =
     FutureProvider((ref) => ref.watch(locationRepositoryProvider).list());
@@ -34,7 +39,7 @@ final stockListProvider = FutureProvider<List<ProductStock>>((ref) {
   };
 });
 
-final stockSearchProvider = StateProvider<String>((_) => '');
+final stockSearchProvider = StateProvider.autoDispose<String>((_) => '');
 
 class InventoryScreen extends ConsumerWidget {
   const InventoryScreen({super.key});
@@ -42,34 +47,33 @@ class InventoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l;
-    final c = context.c;
     final stock = ref.watch(stockListProvider);
     final filter = ref.watch(stockFilterProvider);
     final query = ref.watch(stockSearchProvider).toLowerCase();
     final canManage = ref.watch(meProvider).value?.can(Perm.products) ?? false;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l.inventory),
-        actions: [
-          IconButton(
-            tooltip: l.transferStock,
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const TransferScreen()),
-            ),
-            icon: const Icon(Icons.swap_horiz),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const ScannerScreen()),
+    return AppScaffold(
+      title: l.inventory,
+      actions: [
+        IconButton(
+          tooltip: l.scanBarcode,
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ScannerScreen()),
+            );
+          },
+          icon: const Icon(Icons.qr_code_scanner),
         ),
-        backgroundColor: c.primary,
-        foregroundColor: c.primaryForeground,
-        icon: const Icon(Icons.qr_code_scanner),
-        label: Text(l.scanBarcode),
-      ),
+        IconButton(
+          tooltip: l.transferStock,
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const TransferScreen()),
+          ),
+          icon: const Icon(Icons.swap_horiz),
+        ),
+        const SizedBox(width: 4),
+      ],
       body: Column(
         children: [
           Padding(

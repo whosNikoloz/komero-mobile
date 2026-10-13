@@ -8,6 +8,7 @@ import '../../data/repositories.dart';
 import '../../l10n_ext.dart';
 import '../../models/me.dart';
 import '../../models/stats.dart';
+import '../../widgets/app_scaffold.dart';
 import '../../widgets/branding.dart';
 import '../../widgets/common.dart';
 
@@ -52,15 +53,13 @@ class DashboardScreen extends ConsumerWidget {
       ref.invalidate(dashboardProvider);
     });
 
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 16,
-        title: StoreIdentity(fallbackTitle: l.dashboard),
-        actions: [
-          const _LivePill(),
-          const SizedBox(width: 12),
-        ],
-      ),
+    return AppScaffold(
+      centerTitle: true,
+      titleWidget: StoreIdentity(fallbackTitle: l.dashboard, onDark: true),
+      actions: [
+        const _LivePill(),
+        const SizedBox(width: 12),
+      ],
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(summaryProvider);

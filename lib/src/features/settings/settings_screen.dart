@@ -7,6 +7,9 @@ import '../../core/session.dart';
 import '../../core/theme/tokens.dart';
 import '../../l10n_ext.dart';
 import '../../data/branding.dart';
+import '../../widgets/app_scaffold.dart';
+import '../store/content_screens.dart';
+import '../store/promotions_screen.dart';
 import '../../widgets/branding.dart';
 import '../../widgets/common.dart';
 import '../../widgets/language_picker.dart';
@@ -27,8 +30,8 @@ class SettingsScreen extends ConsumerWidget {
     final push = ref.watch(pushServiceProvider).value;
     final branding = ref.watch(storeBrandingProvider).value;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l.settings)),
+    return AppScaffold(
+      title: l.settings,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
@@ -77,6 +80,41 @@ class SettingsScreen extends ConsumerWidget {
                     value: me!.tenant!.role == 'Owner' ? l.roleOwner : l.roleMember,
                   ),
                 ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          SectionTitle(l.storeContent),
+          Panel(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                // The parts of the web admin an operator adds to rather than
+                // configures. The catalog itself lives behind the Products
+                // title; these have no tab of their own.
+                _SettingRow(
+                  icon: Icons.local_offer_outlined,
+                  label: l.promotions,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PromotionsScreen()),
+                  ),
+                ),
+                Divider(height: 1, color: c.border, indent: 52),
+                _SettingRow(
+                  icon: Icons.article_outlined,
+                  label: l.blog,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const BlogScreen()),
+                  ),
+                ),
+                Divider(height: 1, color: c.border, indent: 52),
+                _SettingRow(
+                  icon: Icons.help_outline,
+                  label: l.faqs,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const FaqsScreen()),
+                  ),
+                ),
               ],
             ),
           ),
@@ -163,13 +201,16 @@ class _SettingRow extends StatelessWidget {
     this.icon,
     this.leading,
     required this.label,
-    required this.value,
+    this.value = '',
     required this.onTap,
   });
 
   final IconData? icon;
   final Widget? leading;
   final String label;
+
+  /// The current setting, shown on the right. Empty for a row that is purely a
+  /// way into another screen.
   final String value;
   final VoidCallback? onTap;
 

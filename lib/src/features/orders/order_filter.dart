@@ -74,7 +74,8 @@ class OrderFilter {
       );
 }
 
-final orderFilterProvider = StateProvider<OrderFilter>((_) => const OrderFilter());
+final orderFilterProvider =
+    StateProvider.autoDispose<OrderFilter>((_) => const OrderFilter());
 
 Future<OrderFilter?> showOrderFilterSheet(
   BuildContext context, {

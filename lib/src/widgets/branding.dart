@@ -110,16 +110,23 @@ class StoreLogo extends StatelessWidget {
 /// Store logo + name, for an app bar. Shows nothing until the config lands, so
 /// the bar never jumps between two different titles.
 class StoreIdentity extends ConsumerWidget {
-  const StoreIdentity({super.key, required this.fallbackTitle});
+  const StoreIdentity({super.key, required this.fallbackTitle, this.onDark = false});
 
   final String fallbackTitle;
+
+  /// Set when it is drawn on the dark header plate, so the ink flips with it.
+  final bool onDark;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.c;
     final branding = ref.watch(storeBrandingProvider).value;
+    final ink = onDark ? c.onOverlay : c.text;
+    final subInk = onDark ? c.onOverlay.withValues(alpha: 0.65) : c.textMuted;
 
-    if (branding == null) return Text(fallbackTitle);
+    if (branding == null) {
+      return Text(fallbackTitle, style: TextStyle(color: ink));
+    }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -138,7 +145,7 @@ class StoreIdentity extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: c.text,
+                  color: ink,
                   height: 1.1,
                 ),
               ),
@@ -149,7 +156,7 @@ class StoreIdentity extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: c.textMuted,
+                  color: subInk,
                   height: 1.3,
                 ),
               ),

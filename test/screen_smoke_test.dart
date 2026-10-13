@@ -11,6 +11,7 @@ import 'package:komero_mobile/src/features/orders/order_detail_screen.dart';
 import 'package:komero_mobile/src/features/dashboard/dashboard_screen.dart'
     show meProvider;
 import 'package:komero_mobile/src/features/auth/login_screen.dart';
+import 'package:komero_mobile/src/features/auth/welcome_screen.dart';
 import 'package:komero_mobile/src/features/inventory/inventory_screen.dart';
 import 'package:komero_mobile/src/features/products/products_screen.dart';
 import 'package:komero_mobile/src/features/settings/settings_screen.dart';
@@ -253,4 +254,27 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  // The welcome carousel is a fixed-height mock, so it is exactly the kind of
+  // layout a large system font breaks — which is how it first overflowed.
+  // pumpAndSettle is out: the marquee ticker never stops.
+  for (final scale in [1.0, 1.6, 2.4]) {
+    testWidgets('welcome renders at text scale $scale', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+            child: _app(const WelcomeScreen()),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(tester.takeException(), isNull);
+    });
+  }
 }

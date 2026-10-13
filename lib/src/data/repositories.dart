@@ -494,5 +494,98 @@ class ProductRepository {
   }
 }
 
+/// The catalog around the products: categories, brands and variant groups.
+///
+/// The update endpoints replace the whole record rather than patching it, so
+/// every edit reads the current one first and sends it back changed — exactly
+/// what the web admin does. Skipping that read would blank every field the
+/// phone does not show.
+class CatalogRepository {
+  CatalogRepository(this._api);
+
+  final KomeroApi _api;
+
+  Future<Map<String, dynamic>> category(String id) =>
+      _api.get<Map<String, dynamic>>('Category/get-category-by-$id');
+
+  Future<void> saveCategory({
+    String? id,
+    required String name,
+    String description = '',
+    String? parentId,
+  }) async {
+    if (id == null) {
+      await _api.post<dynamic>('Category/add-category', body: {
+        'name': name,
+        'description': description,
+        'parentId': ?parentId,
+        'images': <dynamic>[],
+      });
+
+      return;
+    }
+
+    final current = await category(id);
+
+    await _api.put<void>('Category/update-category', body: {
+      ...current,
+      'id': id,
+      'name': name,
+      'description': description,
+    });
+  }
+
+  /// Deletion is a PUT on this API, not a DELETE.
+  Future<void> deleteCategory(String id) =>
+      _api.put<void>('Category/delete-category-by-$id');
+
+  Future<Map<String, dynamic>> brand(String id) =>
+      _api.get<Map<String, dynamic>>('Brand/get-brand-by-$id');
+
+  Future<void> saveBrand({
+    String? id,
+    required String name,
+    String description = '',
+    String origin = '',
+  }) async {
+    if (id == null) {
+      await _api.post<dynamic>('Brand/add-brand', body: {
+        'name': name,
+        'origin': origin,
+        'description': description,
+        'images': <dynamic>[],
+      });
+
+      return;
+    }
+
+    final current = await brand(id);
+
+    await _api.put<void>('Brand/update-brand', body: {
+      ...current,
+      'id': id,
+      'name': name,
+      'description': description,
+      'origin': origin,
+    });
+  }
+
+  Future<void> deleteBrand(String id) =>
+      _api.put<void>('Brand/delete-brand-by-$id');
+
+  Future<List<NamedRef>> productGroups() async {
+    final res =
+        await _api.get<List<dynamic>>('ProductGroup/get-all-product-groups');
+
+    return res.map((e) => NamedRef.fromJson(e as Map)).toList();
+  }
+
+  Future<void> createProductGroup(String name) =>
+      _api.post<dynamic>('ProductGroup/create-product-group', body: {'name': name});
+}
+
+final catalogRepositoryProvider =
+    Provider((ref) => CatalogRepository(ref.watch(apiProvider)));
+
 final productRepositoryProvider =
     Provider((ref) => ProductRepository(ref.watch(apiProvider)));

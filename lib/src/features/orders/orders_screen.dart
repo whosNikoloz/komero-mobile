@@ -6,6 +6,7 @@ import '../../data/order_stream.dart';
 import '../../data/repositories.dart';
 import '../../l10n_ext.dart';
 import '../../models/order.dart';
+import '../../widgets/app_scaffold.dart';
 import '../../widgets/common.dart';
 import 'order_detail_screen.dart';
 import 'order_filter.dart';
@@ -91,35 +92,32 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     // A live order event means the list on screen is stale.
     ref.listen(orderEventsProvider, (_, _) => ref.invalidate(ordersProvider));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l.orders),
-        actions: [
-          IconButton(
-            tooltip: l.orderFilters,
-            onPressed: () async {
-              final next =
-                  await showOrderFilterSheet(context, current: filter);
+    return AppScaffold(
+      title: l.orders,
+      actions: [
+        IconButton(
+          tooltip: l.orderFilters,
+          onPressed: () async {
+            final next = await showOrderFilterSheet(context, current: filter);
 
-              if (next == null) return;
+            if (next == null) return;
 
-              ref.read(orderFilterProvider.notifier).state = next;
+            ref.read(orderFilterProvider.notifier).state = next;
 
-              // Only the channel is a server-side filter; the rest narrow what
-              // is already loaded, so a refetch would be wasted work.
-              if (filter.needsRefetch(next)) ref.invalidate(ordersProvider);
-            },
-            icon: Badge(
-              isLabelVisible: filter.activeCount > 0,
-              label: Text('${filter.activeCount}'),
-              backgroundColor: context.c.primary,
-              textColor: context.c.primaryForeground,
-              child: const Icon(Icons.tune),
-            ),
+            // Only the channel is a server-side filter; the rest narrow what
+            // is already loaded, so a refetch would be wasted work.
+            if (filter.needsRefetch(next)) ref.invalidate(ordersProvider);
+          },
+          icon: Badge(
+            isLabelVisible: filter.activeCount > 0,
+            label: Text('${filter.activeCount}'),
+            backgroundColor: context.c.primary,
+            textColor: context.c.primaryForeground,
+            child: const Icon(Icons.tune),
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+      ],
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(ordersProvider);

@@ -186,6 +186,24 @@ class StatusBadge extends StatelessWidget {
       OrderStatus.refunded => c.textMuted,
     };
 
+    return StatusDot(
+      label: context.l.orderStatusLabel(status),
+      color: color,
+    );
+  }
+}
+
+/// A coloured dot and its label — the shape every status in the app reads as.
+/// [StatusBadge] is the order-specific wrapper; anything else passes its own
+/// label and tone.
+class StatusDot extends StatelessWidget {
+  const StatusDot({super.key, required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -196,7 +214,7 @@ class StatusBadge extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          context.l.orderStatusLabel(status),
+          label,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
