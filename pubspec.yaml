@@ -114,10 +114,18 @@ flutter:
 # App launcher icon, generated from the Komero mark:
 #   dart run flutter_launcher_icons
 flutter_launcher_icons:
-  image_path: "assets/brand/komero-logo.png"
+  # komero-icon.png is komero-logo.png with its circular rim pre-flattened to
+  # the mark's own fill blue — the logo is a disc inscribed in a transparent
+  # square, which is right for KomeroLogo (an in-app badge) but wrong for a
+  # launcher icon: iOS/Android would otherwise flatten the transparent
+  # corners to white (or alpha-blend the rim's antialiasing), leaving a
+  # visible circle-on-square seam instead of a flush, edge-to-edge icon. Only
+  # the icon uses the flattened version; branding.dart keeps the original.
+  image_path: "assets/brand/komero-icon.png"
   android: "ic_launcher"
   min_sdk_android: 23
   remove_alpha_ios: true
+  background_color_ios: "#2F50BB"
   ios: true
-  adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/brand/komero-logo.png"
+  adaptive_icon_background: "#2F50BB"
+  adaptive_icon_foreground: "assets/brand/komero-icon.png"
