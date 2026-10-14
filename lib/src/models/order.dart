@@ -12,11 +12,27 @@ enum OrderStatus {
 
   final int wire;
 
+  /// The wire carries either the integer or the C# enum's name — the order
+  /// list and the live event stream disagree about which, and the web admin
+  /// normalises both (`normalizeStatus` in `commerce/components/admin/order/
+  /// orders-table.tsx`). Parsing only the integer is why every order read as
+  /// pending: `int.tryParse('Delivered')` is null, and null matched nothing.
   static OrderStatus fromWire(Object? v) {
+    if (v is OrderStatus) return v;
+
     final i = v is int ? v : int.tryParse('$v');
 
+    if (i != null) {
+      return OrderStatus.values.firstWhere(
+        (s) => s.wire == i,
+        orElse: () => OrderStatus.pending,
+      );
+    }
+
+    final name = '$v'.trim().toLowerCase();
+
     return OrderStatus.values.firstWhere(
-      (s) => s.wire == i,
+      (s) => s.name.toLowerCase() == name,
       orElse: () => OrderStatus.pending,
     );
   }
@@ -35,13 +51,26 @@ enum OrderChannel {
 
   final int wire;
 
+  /// Integer or enum name, for the same reason as [OrderStatus.fromWire].
   static OrderChannel? fromWire(Object? v) {
     if (v == null) return null;
 
+    if (v is OrderChannel) return v;
+
     final i = v is int ? v : int.tryParse('$v');
 
+    if (i != null) {
+      for (final c in OrderChannel.values) {
+        if (c.wire == i) return c;
+      }
+
+      return null;
+    }
+
+    final name = '$v'.trim().toLowerCase();
+
     for (final c in OrderChannel.values) {
-      if (c.wire == i) return c;
+      if (c.name.toLowerCase() == name) return c;
     }
 
     return null;

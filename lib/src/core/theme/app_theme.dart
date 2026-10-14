@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'page_transitions.dart';
 import 'tokens.dart';
 
 /// Builds a ThemeData whose every colour comes from [KomeroColors], so light
@@ -30,6 +31,13 @@ ThemeData komeroTheme(KomeroColors c, Brightness brightness) {
     canvasColor: c.surface,
     dividerColor: c.border,
     extensions: [c],
+    // ponytail: same rise-up transition on every platform.
+    pageTransitionsTheme: PageTransitionsTheme(
+      builders: {
+        for (final p in TargetPlatform.values)
+          p: const RiseUpPageTransitionsBuilder(),
+      },
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: c.surface,
       surfaceTintColor: Colors.transparent,

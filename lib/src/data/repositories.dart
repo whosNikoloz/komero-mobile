@@ -584,6 +584,54 @@ class CatalogRepository {
       _api.post<dynamic>('ProductGroup/create-product-group', body: {'name': name});
 }
 
+// ─────────────────────────────────────────────────────────────── media
+
+/// Uploads for anything that is not a product gallery photo — the pictures an
+/// operator drops into a description.
+///
+/// `POST Image/upload`, multipart `files` plus an optional `folder`, same as
+/// the web admin's `uploadImage` (`commerce/app/api/services/uploadService.ts`).
+/// The response has been seen as a bare string, a list, and an object with
+/// `url`, `path` or `data`, so all of those are unwrapped here rather than at
+/// the call site.
+class MediaRepository {
+  MediaRepository(this._api);
+
+  final KomeroApi _api;
+
+  Future<String> upload(MultipartFile file, {String? folder}) async {
+    final form = FormData();
+
+    form.files.add(MapEntry('files', file));
+
+    if (folder != null) form.fields.add(MapEntry('folder', folder));
+
+    final res = await _api.post<dynamic>('Image/upload', body: form);
+    final url = _url(res);
+
+    if (url == null || url.isEmpty) {
+      throw const FormatException('Upload returned no URL');
+    }
+
+    return url;
+  }
+
+  static String? _url(Object? res) {
+    if (res is String) return res;
+
+    if (res is List) return res.isEmpty ? null : _url(res.first);
+
+    if (res is Map) {
+      return _url(res['url'] ?? res['path'] ?? res['data']);
+    }
+
+    return null;
+  }
+}
+
+final mediaRepositoryProvider =
+    Provider((ref) => MediaRepository(ref.watch(apiProvider)));
+
 final catalogRepositoryProvider =
     Provider((ref) => CatalogRepository(ref.watch(apiProvider)));
 

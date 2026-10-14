@@ -46,6 +46,11 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<!-- Lets FCM wake the app for a data-only order push. -->
+	<!-- Only standard HTTPS, which is exempt. Without this key App Store
+	     Connect holds every TestFlight build for the export-compliance
+	     questionnaire. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

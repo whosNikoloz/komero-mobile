@@ -76,6 +76,8 @@
   "funnelCheckout": "Started checkout",
   "funnelPurchased": "Purchased",
   "vsLastMonth": "vs last month",
+  "ordersToFulfil": "Orders to fulfil",
+  "viewAll": "View all",
   "needsAttention": "Needs attention",
   "lowStockCount": "{count, plural, =1{1 product low on stock} other{{count} products low on stock}}",
   "@lowStockCount": {
@@ -255,6 +257,15 @@
   "@couponCount": {
     "placeholders": { "count": { "type": "int" } }
   },
+  "addVideo": "Add video",
+  "videoLink": "Video link",
+  "videoLinkHint": "YouTube link, or an embed link",
+  "invalidVideoLink": "That does not look like a video link",
+  "moveUp": "Move up",
+  "moveDown": "Move down",
+  "formatBold": "Bold",
+  "formatItalic": "Italic",
+  "formatBulletList": "Bulleted list",
   "description": "Description",
   "shortDescription": "Short description",
   "category": "Category",
@@ -367,5 +378,17 @@
   "notifLowStockMany": "{count, plural, =1{1 product is running low} other{{count} products are running low}}",
   "@notifLowStockMany": {
     "placeholders": { "count": { "type": "int" } }
-  }
+  },
+  "pullToPreview": "Pull to preview",
+  "preview": "Preview",
+  "seo": "Search engine listing",
+  "urlHandle": "URL handle",
+  "metaTitle": "Page title",
+  "metaDescription": "Meta description",
+  "metaKeywords": "Keywords",
+  "gtin": "GTIN / barcode",
+  "mpn": "MPN",
+  "allowIndexing": "Allow search engines to index",
+  "canonicalUrl": "Canonical URL",
+  "seoHint": "How this product appears on Google and in your sitemap."
 }

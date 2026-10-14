@@ -10,6 +10,7 @@ import '../../models/me.dart';
 import '../../models/product.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/common.dart';
+import '../shell/app_shell.dart' show kNavClearance;
 import '../../widgets/sheet.dart';
 import '../dashboard/dashboard_screen.dart' show meProvider;
 import 'catalog_screen.dart';
@@ -114,9 +115,16 @@ class ProductsScreen extends ConsumerWidget {
                   }
 
                   return ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                    // Full-width rows, hairline between: a catalog is a list,
+                    // not a feed of cards.
+                    padding: const EdgeInsets.only(bottom: kNavClearance),
                     itemCount: list.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    separatorBuilder: (_, _) => Divider(
+                      height: 1,
+                      thickness: 1,
+                      indent: 16,
+                      color: c.border,
+                    ),
                     itemBuilder: (_, i) => _ProductRow(
                       product: list[i],
                       enabled: canManage,
@@ -132,6 +140,10 @@ class ProductsScreen extends ConsumerWidget {
   }
 }
 
+/// One product as a 40dp thumbnail and two lines. Half the height of the card
+/// it replaced: the name gets one line instead of two, price and SKU share the
+/// second, and stock sits at the right edge where it can be scanned down the
+/// column.
 class _ProductRow extends StatelessWidget {
   const _ProductRow({required this.product, required this.enabled});
 
@@ -142,10 +154,13 @@ class _ProductRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.c;
     final l = context.l;
+    final tag = context.localeTag;
     final onSale = product.discountPrice != null && product.discountPrice! > 0;
 
-    return Panel(
-      padding: const EdgeInsets.all(12),
+    final inactive = !product.isActive;
+    final out = product.status == StockStatus.outOfStock;
+
+    return InkWell(
       onTap: enabled
           ? () => Navigator.of(context).push(
                 MaterialPageRoute(
@@ -153,101 +168,107 @@ class _ProductRow extends StatelessWidget {
                 ),
               )
           : null,
-      child: Row(
-        children: [
-          EntityThumb(path: product.coverImage, size: 52),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: c.text,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                // Price cluster and SKU both shrink before anything clips:
-                // a sale price, its struck-through original and a long SKU
-                // together overflowed a 360dp row.
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        onSale
-                            ? money(product.discountPrice!, locale: context.localeTag)
-                            : money(product.price, locale: context.localeTag),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: c.text,
-                        ),
-                      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+        child: Row(
+          children: [
+            EntityThumb(path: product.coverImage, size: 40),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      height: 1.2,
+                      color: c.text,
                     ),
-                    if (onSale) ...[
-                      const SizedBox(width: 6),
+                  ),
+                  const SizedBox(height: 3),
+                  // Price cluster and SKU both shrink before anything clips:
+                  // a sale price, its struck-through original and a long SKU
+                  // together overflowed a 360dp row.
+                  Row(
+                    children: [
                       Flexible(
                         child: Text(
-                          money(product.price, locale: context.localeTag),
+                          money(
+                            onSale ? product.discountPrice! : product.price,
+                            locale: tag,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 11,
-                            color: c.textMuted,
-                            decoration: TextDecoration.lineThrough,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            height: 1.2,
+                            color: c.text,
                           ),
                         ),
                       ),
-                    ],
-                    if (product.sku != null) ...[
-                      Text(
-                        '  ·  ',
-                        style: TextStyle(fontSize: 11, color: c.textDisabled),
-                      ),
-                      Flexible(
-                        child: Text(
-                          product.sku!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 11, color: c.textMuted),
+                      if (onSale) ...[
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            money(product.price, locale: tag),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              height: 1.2,
+                              color: c.textMuted,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
+                      if (product.sku != null) ...[
+                        Text(
+                          '  ·  ',
+                          style: TextStyle(fontSize: 11, color: c.textDisabled),
+                        ),
+                        Flexible(
+                          child: Text(
+                            product.sku!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 11, height: 1.2, color: c.textMuted),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 96),
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (!product.isActive)
-                _Tag(label: l.visibility, color: c.textMuted)
-              else if (product.status == StockStatus.outOfStock)
-                _Tag(label: l.outOfStock, color: c.error)
-              else
-                _Tag(label: l.inStock, color: c.success),
-              if (product.stockQuantity != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  '${product.stockQuantity}',
-                  style: TextStyle(fontSize: 12, color: c.textSecondary),
-                ),
-              ],
-            ],
+            const SizedBox(width: 10),
+            // Only the states worth acting on get words. A product that is
+            // live and in stock is the normal case, so it says nothing and
+            // just shows what is on hand.
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 92),
+              child: inactive || out
+                  ? _Tag(
+                      label: inactive ? l.visibility : l.outOfStock,
+                      color: inactive ? c.textMuted : c.error,
+                    )
+                  : Text(
+                      product.stockQuantity == null ? '' : '${product.stockQuantity}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: c.textSecondary,
+                      ),
+                    ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

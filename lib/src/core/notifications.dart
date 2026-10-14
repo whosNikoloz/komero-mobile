@@ -170,7 +170,16 @@ class PushService {
 
     await service._requestPermission();
 
-    if (firebaseReady) await service._attachFirebase();
+    if (firebaseReady) {
+      try {
+        await service._attachFirebase();
+      } catch (e) {
+        // ponytail: iOS getToken() throws when APNs has not handed over a
+        // token yet (no entitlement, no network at launch, simulator). Losing
+        // background push is survivable; losing the SSE alerts with it is not.
+        debugPrint('[push] FCM attach failed, SSE alerts only: $e');
+      }
+    }
 
     return service;
   }

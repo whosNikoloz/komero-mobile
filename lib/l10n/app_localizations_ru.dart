@@ -210,6 +210,12 @@ class LRu extends L {
   String get vsLastMonth => 'к прошлому месяцу';
 
   @override
+  String get ordersToFulfil => 'Заказы к обработке';
+
+  @override
+  String get viewAll => 'Смотреть все';
+
+  @override
   String get needsAttention => 'Требует внимания';
 
   @override
@@ -659,6 +665,33 @@ class LRu extends L {
   String get answer => 'Ответ';
 
   @override
+  String get addVideo => 'Добавить видео';
+
+  @override
+  String get videoLink => 'Ссылка на видео';
+
+  @override
+  String get videoLinkHint => 'Ссылка YouTube или embed-ссылка';
+
+  @override
+  String get invalidVideoLink => 'Это не похоже на ссылку на видео';
+
+  @override
+  String get moveUp => 'Вверх';
+
+  @override
+  String get moveDown => 'Вниз';
+
+  @override
+  String get formatBold => 'Жирный';
+
+  @override
+  String get formatItalic => 'Курсив';
+
+  @override
+  String get formatBulletList => 'Список';
+
+  @override
   String get description => 'Описание';
 
   @override
@@ -952,4 +985,40 @@ class LRu extends L {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pullToPreview => 'Потяните для предпросмотра';
+
+  @override
+  String get preview => 'Предпросмотр';
+
+  @override
+  String get seo => 'Карточка в поиске';
+
+  @override
+  String get urlHandle => 'URL-адрес';
+
+  @override
+  String get metaTitle => 'Заголовок страницы';
+
+  @override
+  String get metaDescription => 'Мета-описание';
+
+  @override
+  String get metaKeywords => 'Ключевые слова';
+
+  @override
+  String get gtin => 'GTIN / штрихкод';
+
+  @override
+  String get mpn => 'MPN';
+
+  @override
+  String get allowIndexing => 'Разрешить индексацию';
+
+  @override
+  String get canonicalUrl => 'Канонический URL';
+
+  @override
+  String get seoHint => 'Как товар выглядит в Google и в карте сайта.';
 }

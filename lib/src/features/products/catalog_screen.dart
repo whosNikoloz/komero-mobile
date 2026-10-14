@@ -150,11 +150,18 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                 value: items,
                 onRetry: () => ref.invalidate(catalogListProvider(kind)),
                 data: (all) {
+                  // Categories nest under each other; searching flattens the
+                  // tree so a match under an unmatched parent stays reachable.
                   final matches = query.isEmpty
-                      ? all
+                      ? orderAsTree(
+                          all,
+                          idOf: (item) => item.id,
+                          parentOf: (item) => item.parentId,
+                        )
                       : [
                           for (final item in all)
-                            if (item.name.toLowerCase().contains(query)) item,
+                            if (item.name.toLowerCase().contains(query))
+                              (item: item, depth: 0),
                         ];
 
                   if (matches.isEmpty) {
@@ -167,10 +174,16 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                     separatorBuilder: (_, _) =>
                         Divider(height: 1, indent: 16, color: c.border),
                     itemBuilder: (_, i) {
-                      final item = matches[i];
+                      final item = matches[i].item;
+                      final depth = matches[i].depth;
 
                       return ListTile(
-                        leading: Icon(kind.icon, size: 20, color: c.textMuted),
+                        contentPadding: EdgeInsets.only(left: 16 + depth * 18, right: 8),
+                        leading: Icon(
+                          depth == 0 ? kind.icon : Icons.subdirectory_arrow_right,
+                          size: 20,
+                          color: c.textMuted,
+                        ),
                         title: Text(
                           item.name,
                           style: TextStyle(fontSize: 15, color: c.text),

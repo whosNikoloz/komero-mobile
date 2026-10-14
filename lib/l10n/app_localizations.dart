@@ -471,6 +471,18 @@ abstract class L {
   /// **'vs last month'**
   String get vsLastMonth;
 
+  /// No description provided for @ordersToFulfil.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders to fulfil'**
+  String get ordersToFulfil;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAll;
+
   /// No description provided for @needsAttention.
   ///
   /// In en, this message translates to:
@@ -1263,6 +1275,60 @@ abstract class L {
   /// **'Answer'**
   String get answer;
 
+  /// No description provided for @addVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add video'**
+  String get addVideo;
+
+  /// No description provided for @videoLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Video link'**
+  String get videoLink;
+
+  /// No description provided for @videoLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube link, or an embed link'**
+  String get videoLinkHint;
+
+  /// No description provided for @invalidVideoLink.
+  ///
+  /// In en, this message translates to:
+  /// **'That does not look like a video link'**
+  String get invalidVideoLink;
+
+  /// No description provided for @moveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get moveUp;
+
+  /// No description provided for @moveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get moveDown;
+
+  /// No description provided for @formatBold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get formatBold;
+
+  /// No description provided for @formatItalic.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get formatItalic;
+
+  /// No description provided for @formatBulletList.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulleted list'**
+  String get formatBulletList;
+
   /// No description provided for @description.
   ///
   /// In en, this message translates to:
@@ -1760,6 +1826,78 @@ abstract class L {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 product is running low} other{{count} products are running low}}'**
   String notifLowStockMany(int count);
+
+  /// No description provided for @pullToPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull to preview'**
+  String get pullToPreview;
+
+  /// No description provided for @preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get preview;
+
+  /// No description provided for @seo.
+  ///
+  /// In en, this message translates to:
+  /// **'Search engine listing'**
+  String get seo;
+
+  /// No description provided for @urlHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'URL handle'**
+  String get urlHandle;
+
+  /// No description provided for @metaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Page title'**
+  String get metaTitle;
+
+  /// No description provided for @metaDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Meta description'**
+  String get metaDescription;
+
+  /// No description provided for @metaKeywords.
+  ///
+  /// In en, this message translates to:
+  /// **'Keywords'**
+  String get metaKeywords;
+
+  /// No description provided for @gtin.
+  ///
+  /// In en, this message translates to:
+  /// **'GTIN / barcode'**
+  String get gtin;
+
+  /// No description provided for @mpn.
+  ///
+  /// In en, this message translates to:
+  /// **'MPN'**
+  String get mpn;
+
+  /// No description provided for @allowIndexing.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow search engines to index'**
+  String get allowIndexing;
+
+  /// No description provided for @canonicalUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Canonical URL'**
+  String get canonicalUrl;
+
+  /// No description provided for @seoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How this product appears on Google and in your sitemap.'**
+  String get seoHint;
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {

@@ -6,12 +6,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/net/api_client.dart';
+import '../../core/rich_text.dart';
+import '../../core/session.dart';
 import '../../core/theme/tokens.dart';
 import '../../data/repositories.dart';
 import '../../l10n_ext.dart';
 import '../../models/product.dart';
 import '../../widgets/common.dart';
 import '../../widgets/editor.dart';
+import '../../widgets/pull_to_preview.dart';
+import '../../widgets/rich_editor.dart';
 import '../../widgets/sheet.dart';
 import 'products_screen.dart' show productListProvider;
 
@@ -67,10 +71,28 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
   final _price = TextEditingController();
   final _salePrice = TextEditingController();
   final _shortDescription = TextEditingController();
-  final _description = TextEditingController();
   final _initialStock = TextEditingController();
+  final _slug = TextEditingController();
+  final _metaTitle = TextEditingController();
+  final _metaDescription = TextEditingController();
+  final _metaKeywords = TextEditingController();
+  final _gtin = TextEditingController();
+  final _mpn = TextEditingController();
+  final _canonical = TextEditingController();
+  bool _isIndexable = true;
 
   final _newPhotos = <XFile>[];
+
+  /// The long description is HTML all the way through this screen: the rich
+  /// editor reads it and hands it back, so nothing has to be re-rendered on
+  /// save and a description laid out on the web keeps whatever this editor
+  /// does not understand.
+  String? _descriptionHtml;
+
+  /// The short one is a line of summary, edited as text. Its original markup
+  /// is kept so an untouched value is sent back byte for byte rather than
+  /// re-rendered by a screen that never meant to change it.
+  String? _shortDescriptionHtml;
 
   String? _categoryId;
   String? _brandId;
@@ -96,8 +118,10 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
     _sku.text = p.sku ?? '';
     _price.text = '${p.price}';
     _salePrice.text = p.discountPrice == null ? '' : '${p.discountPrice}';
-    _shortDescription.text = p.shortDescription ?? '';
-    _description.text = p.description ?? '';
+    // Both are stored as HTML. See core/rich_text.dart.
+    _shortDescriptionHtml = p.shortDescription;
+    _descriptionHtml = p.description;
+    _shortDescription.text = htmlToPlainText(p.shortDescription);
     _categoryId = p.category?.id.isEmpty == true ? null : p.category?.id;
     _brandId = p.brand?.id.isEmpty == true ? null : p.brand?.id;
     _condition = p.condition;
@@ -105,6 +129,14 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
     _isNewArrival = p.isNewArrival;
     _isLiquidated = p.isLiquidated;
     _isComingSoon = p.isComingSoon;
+    _slug.text = p.slug ?? '';
+    _metaTitle.text = p.metaTitle ?? '';
+    _metaDescription.text = p.metaDescription ?? '';
+    _metaKeywords.text = p.metaKeywords ?? '';
+    _gtin.text = p.gtin ?? '';
+    _mpn.text = p.mpn ?? '';
+    _canonical.text = p.canonicalOverride ?? '';
+    _isIndexable = p.isIndexable;
   }
 
   @override
@@ -114,8 +146,14 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
     _price.dispose();
     _salePrice.dispose();
     _shortDescription.dispose();
-    _description.dispose();
     _initialStock.dispose();
+    _slug.dispose();
+    _metaTitle.dispose();
+    _metaDescription.dispose();
+    _metaKeywords.dispose();
+    _gtin.dispose();
+    _mpn.dispose();
+    _canonical.dispose();
     super.dispose();
   }
 
@@ -138,6 +176,22 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
 
     setState(() => _newPhotos.addAll(picked));
   }
+
+  /// What to send for a field the operator saw as text and the API stores as
+  /// markup: the original HTML when the text is still what that HTML says,
+  /// otherwise the edited text rendered back into paragraphs.
+  String? _markup(String text, String? originalHtml) {
+    if (text.trim().isEmpty) return null;
+
+    if (originalHtml != null && text == htmlToPlainText(originalHtml)) {
+      return originalHtml;
+    }
+
+    return plainTextToHtml(text);
+  }
+
+  static String? _trimmed(TextEditingController c) =>
+      c.text.trim().isEmpty ? null : c.text.trim();
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
@@ -175,15 +229,20 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
         discountPrice: _salePrice.text.trim().isEmpty
             ? null
             : num.tryParse(_salePrice.text.trim()),
-        shortDescription: _shortDescription.text.trim().isEmpty
-            ? null
-            : _shortDescription.text.trim(),
-        description:
-            _description.text.trim().isEmpty ? null : _description.text.trim(),
+        shortDescription: _markup(_shortDescription.text, _shortDescriptionHtml),
+        description: _descriptionHtml?.trim().isEmpty ?? true ? null : _descriptionHtml,
         isActive: _isActive,
         isNewArrival: _isNewArrival,
         isLiquidated: _isLiquidated,
         isComingSoon: _isComingSoon,
+        slug: _trimmed(_slug),
+        metaTitle: _trimmed(_metaTitle),
+        metaDescription: _trimmed(_metaDescription),
+        metaKeywords: _trimmed(_metaKeywords),
+        gtin: _trimmed(_gtin),
+        mpn: _trimmed(_mpn),
+        isIndexable: _isIndexable,
+        canonicalOverride: _trimmed(_canonical),
       );
 
       final body = draft.toRequestJson(
@@ -286,11 +345,31 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
       title: title,
       subtitle: _name.text.trim().isEmpty ? null : _name.text.trim(),
       initial: controller.text,
+      // Both description fields are stored as markup and rendered as markup on
+      // the storefront, so the editor offers the marks for it.
+      formatting: true,
     );
 
     if (text == null || !mounted) return;
 
     setState(() => controller.text = text);
+  }
+
+  String get _descriptionPreview => htmlToPlainText(_descriptionHtml);
+
+  /// The long description gets the editor with pictures and video in it, which
+  /// is the one the web admin offers for the same field.
+  Future<void> _editDescription() async {
+    final html = await editRichText(
+      context,
+      title: context.l.description,
+      subtitle: _name.text.trim().isEmpty ? null : _name.text.trim(),
+      initialHtml: _descriptionHtml ?? '',
+    );
+
+    if (html == null || !mounted) return;
+
+    setState(() => _descriptionHtml = html);
   }
 
   Future<void> _pick({
@@ -305,6 +384,9 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
       items: items,
       labelOf: (item) => item.name,
       selected: _refOf(items, selected),
+      // Categories nest; brands come back flat, so this is a no-op for them.
+      idOf: (item) => item.id,
+      parentOf: (item) => item.parentId,
     );
 
     // null is "backed out"; a result carrying a null value is "cleared it".
@@ -332,9 +414,22 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
     final brands = ref.watch(_brandsProvider).value ?? const [];
     final existingImages = widget.existing?.images ?? const [];
 
+    final existingName = widget.existing?.name.trim() ?? '';
+    final domain = ref.watch(sessionProvider).domain;
+    final slug = widget.existing?.slug?.trim();
+    final handle = (slug != null && slug.isNotEmpty) ? slug : widget.existing?.id;
+    final previewUrl = (_isNew || domain == null || handle == null)
+        ? ''
+        : 'https://$domain/product/${Uri.encodeComponent(handle)}';
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isNew ? l.addProduct : l.editProduct),
+        title: Text(
+          _isNew
+              ? l.addProduct
+              : (existingName.isEmpty ? l.editProduct : existingName),
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           TextButton(
             onPressed: _busy ? null : _save,
@@ -342,7 +437,8 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
           ),
         ],
       ),
-      body: Form(
+      // Over-pull the form to see the product live on the storefront.
+      body: PullToPreview(url: previewUrl, child: Form(
         key: _form,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -529,14 +625,12 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
                   ),
                   const _RowDivider(),
                   EditorRow(
-                    label: _description.text.trim().isEmpty
+                    label: _descriptionPreview.isEmpty
                         ? l.addValue(l.description)
                         : l.description,
-                    value: _description.text,
-                    onTap: () => _editText(
-                      title: l.description,
-                      controller: _description,
-                    ),
+                    // The row shows the words, never the tags.
+                    value: _descriptionPreview,
+                    onTap: _editDescription,
                   ),
                 ],
               ),
@@ -579,6 +673,57 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
               ),
               const SizedBox(height: 10),
             ],
+            const SizedBox(height: 24),
+            SectionTitle(l.seo),
+            Text(
+              l.seoHint,
+              style: TextStyle(fontSize: 12, color: c.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _slug,
+              decoration: InputDecoration(labelText: l.urlHandle),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _metaTitle,
+              decoration: InputDecoration(labelText: l.metaTitle),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _metaDescription,
+              minLines: 2,
+              maxLines: 4,
+              decoration: InputDecoration(labelText: l.metaDescription),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _metaKeywords,
+              decoration: InputDecoration(labelText: l.metaKeywords),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _canonical,
+              keyboardType: TextInputType.url,
+              decoration: InputDecoration(labelText: l.canonicalUrl),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _gtin,
+              decoration: InputDecoration(labelText: l.gtin),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _mpn,
+              decoration: InputDecoration(labelText: l.mpn),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _isIndexable,
+              onChanged: (v) => setState(() => _isIndexable = v),
+              title: Text(l.allowIndexing, style: const TextStyle(fontSize: 14)),
+            ),
+            const SizedBox(height: 16),
             FilledButton(
               onPressed: _busy ? null : _save,
               child: _busy
@@ -594,7 +739,7 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

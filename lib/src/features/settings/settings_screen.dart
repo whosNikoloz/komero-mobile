@@ -12,6 +12,7 @@ import '../store/content_screens.dart';
 import '../store/promotions_screen.dart';
 import '../../widgets/branding.dart';
 import '../../widgets/common.dart';
+import '../shell/app_shell.dart' show kNavClearance;
 import '../../widgets/language_picker.dart';
 import '../../widgets/theme_picker.dart';
 import '../../widgets/sheet.dart';
@@ -33,7 +34,7 @@ class SettingsScreen extends ConsumerWidget {
     return AppScaffold(
       title: l.settings,
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, kNavClearance),
         children: [
           SectionTitle(l.account),
           Panel(

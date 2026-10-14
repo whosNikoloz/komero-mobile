@@ -61,15 +61,51 @@ class ProductImage {
 }
 
 class NamedRef {
-  NamedRef({required this.id, required this.name});
+  NamedRef({required this.id, required this.name, this.parentId});
 
   final String id;
   final String name;
 
+  /// Only categories carry one; it is what the picker builds its tree from.
+  final String? parentId;
+
   factory NamedRef.fromJson(Map? j) => NamedRef(
         id: '${j?['id'] ?? ''}',
         name: '${j?['name'] ?? ''}',
+        parentId: (j?['parentId'] as String?)?.isEmpty == true
+            ? null
+            : j?['parentId'] as String?,
       );
+}
+
+/// Depth-first order with each item's depth, so children read as indented
+/// rows under their parent. Items whose parent is missing count as roots,
+/// which also keeps a broken link from hiding them.
+List<({T item, int depth})> orderAsTree<T>(
+  List<T> items, {
+  required String? Function(T) idOf,
+  required String? Function(T) parentOf,
+}) {
+  final ids = {for (final item in items) idOf(item)};
+  final byParent = <String?, List<T>>{};
+
+  for (final item in items) {
+    final parent = parentOf(item);
+    byParent.putIfAbsent(ids.contains(parent) ? parent : null, () => []).add(item);
+  }
+
+  final out = <({T item, int depth})>[];
+
+  void walk(String? parent, int depth) {
+    for (final item in byParent[parent] ?? const []) {
+      out.add((item: item, depth: depth));
+      if (depth < 6) walk(idOf(item), depth + 1);
+    }
+  }
+
+  walk(null, 0);
+
+  return out;
 }
 
 class Product {
@@ -92,6 +128,13 @@ class Product {
     this.isLiquidated = false,
     this.isComingSoon = false,
     this.stockQuantity,
+    this.metaTitle,
+    this.metaDescription,
+    this.metaKeywords,
+    this.gtin,
+    this.mpn,
+    this.isIndexable = true,
+    this.canonicalOverride,
   });
 
   final String id;
@@ -112,6 +155,13 @@ class Product {
   final bool isLiquidated;
   final bool isComingSoon;
   final int? stockQuantity;
+  final String? metaTitle;
+  final String? metaDescription;
+  final String? metaKeywords;
+  final String? gtin;
+  final String? mpn;
+  final bool isIndexable;
+  final String? canonicalOverride;
 
   String? get coverImage {
     if (images.isEmpty) return null;
@@ -146,6 +196,13 @@ class Product {
         isLiquidated: j['isLiquidated'] == true,
         isComingSoon: j['isComingSoon'] == true,
         stockQuantity: j['stockQuantity'] as int?,
+        metaTitle: j['metaTitle'] as String?,
+        metaDescription: j['metaDescription'] as String?,
+        metaKeywords: j['metaKeywords'] as String?,
+        gtin: j['gtin'] as String?,
+        mpn: j['mpn'] as String?,
+        isIndexable: j['isIndexable'] != false,
+        canonicalOverride: j['canonicalOverride'] as String?,
       );
 
   /// The write shape: `brandId`/`categoryId` instead of nested objects, and
@@ -175,6 +232,15 @@ class Product {
         'productFacetValues': const [],
         'initialStock': ?initialStock,
         'stockQuantity': ?stockQuantity,
+        // Sent even when empty: the update endpoint replaces the record, so a
+        // field left out here is a field wiped on the storefront.
+        'metaTitle': metaTitle ?? '',
+        'metaDescription': metaDescription ?? '',
+        'metaKeywords': metaKeywords ?? '',
+        'gtin': gtin ?? '',
+        'mpn': mpn ?? '',
+        'isIndexable': isIndexable,
+        'canonicalOverride': canonicalOverride ?? '',
       };
 }
 

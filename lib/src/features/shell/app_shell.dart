@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../core/notifications.dart';
 import '../../core/theme/tokens.dart';
@@ -13,33 +16,27 @@ import '../orders/orders_screen.dart';
 import '../products/products_screen.dart';
 import '../settings/settings_screen.dart';
 
+/// What a tab's scroll view leaves below its last row to clear the floating
+/// nav: the pill, the padding around it, and a little air. The nav is
+/// translucent and the body runs underneath it, so nothing reserves this space
+/// for a screen — each one adds it as bottom padding.
+const kNavClearance = 90.0;
+
+/// Which tab is on screen. A provider rather than local state so Home's task
+/// rows can send the operator to Orders or Inventory — a dashboard that only
+/// reports numbers is a poster; one that routes you to the work is a dashboard.
+final navIndexProvider = StateProvider((_) => 0);
+
 /// Bottom-nav shell. Each tab keeps its own scroll position and state via
 /// IndexedStack, which is what makes the app feel native rather than like a
 /// page router.
-class AppShell extends ConsumerStatefulWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({super.key});
 
   @override
-  ConsumerState<AppShell> createState() => _AppShellState();
-}
-
-class _AppShellState extends ConsumerState<AppShell> {
-  int _index = 0;
-
-  void _goTo(int i) {
-    if (i == _index) return;
-
-    // The tick an iPhone gives when a selection moves — it is what makes
-    // changing tab feel like moving a physical control rather than repainting
-    // a screen. selectionClick, not an impact: this is a choice changing, not
-    // something landing.
-    HapticFeedback.selectionClick();
-    setState(() => _index = i);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l;
+    final index = ref.watch(navIndexProvider);
 
     // Starting these here, once, keeps the alert wiring alive for the whole
     // signed-in session regardless of which tab is on screen.
@@ -52,9 +49,10 @@ class _AppShellState extends ConsumerState<AppShell> {
     ref.listen(orderTapsProvider, (_, next) {
       final orderId = next.value;
 
-      if (orderId == null || !mounted) return;
+      if (orderId == null || !context.mounted) return;
 
-      setState(() => _index = 1); // Land on Orders, so Back has somewhere to go.
+      // Land on Orders, so Back has somewhere to go.
+      ref.read(navIndexProvider.notifier).state = 1;
 
       Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: orderId)),
@@ -62,8 +60,13 @@ class _AppShellState extends ConsumerState<AppShell> {
     });
 
     return Scaffold(
+      // The nav is translucent, so the body runs underneath it and what you
+      // see through the glass is the content scrolling past. Each tab's scroll
+      // view leaves [kNavClearance] below its last row to stay reachable —
+      // with no opaque bar in the slot, nothing reserves that space for them.
+      extendBody: true,
       body: IndexedStack(
-        index: _index,
+        index: index,
         children: const [
           DashboardScreen(),
           OrdersScreen(),
@@ -72,12 +75,18 @@ class _AppShellState extends ConsumerState<AppShell> {
           SettingsScreen(),
         ],
       ),
-      // The nav sits in the bottom-nav slot rather than over the body, so
-      // every tab's scroll view still ends above it without each screen
-      // having to add bottom padding of its own.
       bottomNavigationBar: _FloatingNav(
-        index: _index,
-        onSelect: _goTo,
+        index: index,
+        onSelect: (i) {
+          if (i == index) return;
+
+          // The tick an iPhone gives when a selection moves — it is what makes
+          // changing tab feel like moving a physical control rather than
+          // repainting a screen. selectionClick, not an impact: this is a
+          // choice changing, not something landing.
+          HapticFeedback.selectionClick();
+          ref.read(navIndexProvider.notifier).state = i;
+        },
         // The scanner is the one action an operator fires over and over, and
         // it is not a destination — a detached button is where it belongs.
         onScan: () {
@@ -181,6 +190,12 @@ class _FloatingNav extends StatelessWidget {
 
 /// The surface all three groups share — one place owns what floating looks
 /// like, so the circles and the pill can never drift apart.
+///
+/// Translucent over a blur: the content passing underneath stays visible as a
+/// tint through the glass, which is what makes the groups read as hovering
+/// above the page rather than as a bar bolted to the bottom of it. The alpha
+/// stays high enough that the icons keep their contrast over whatever scrolls
+/// behind them.
 class _Floating extends StatelessWidget {
   const _Floating({required this.child, this.width});
 
@@ -192,23 +207,30 @@ class _Floating extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final radius = BorderRadius.circular(height / 2);
 
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: c.card,
-        borderRadius: BorderRadius.circular(height / 2),
-        border: Border.all(color: c.border),
-        boxShadow: [
-          BoxShadow(
-            color: c.overlay.withValues(alpha: 0.10),
-            blurRadius: 22,
-            offset: const Offset(0, 8),
+    return ClipRRect(
+      borderRadius: radius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: c.card.withValues(alpha: 0.72),
+            borderRadius: radius,
+            border: Border.all(color: c.border.withValues(alpha: 0.6)),
+            boxShadow: [
+              BoxShadow(
+                color: c.overlay.withValues(alpha: 0.10),
+                blurRadius: 22,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
+          child: child,
+        ),
       ),
-      child: child,
     );
   }
 }

@@ -10,6 +10,7 @@ import '../../models/inventory.dart';
 import '../../models/me.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/common.dart';
+import '../shell/app_shell.dart' show kNavClearance;
 import '../dashboard/dashboard_screen.dart' show meProvider;
 import 'scanner_screen.dart';
 import 'stock_adjust_sheet.dart';
@@ -138,9 +139,17 @@ class InventoryScreen extends ConsumerWidget {
                   }
 
                   return ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+                    // Full-width rows with a hairline between them, not a
+                    // stack of cards: a stock list is a table of numbers and
+                    // reads like one.
+                    padding: const EdgeInsets.only(bottom: kNavClearance),
                     itemCount: filtered.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    separatorBuilder: (_, _) => Divider(
+                      height: 1,
+                      thickness: 1,
+                      indent: 16,
+                      color: context.c.border,
+                    ),
                     itemBuilder: (_, i) => _StockRow(
                       stock: filtered[i],
                       enabled: canManage,
@@ -197,6 +206,13 @@ class _LocationPicker extends ConsumerWidget {
   }
 }
 
+/// One product's stock as a single line of table: name and where it sits on
+/// the left, the available count on the right, coloured only when the number
+/// is the problem.
+///
+/// The count carries the state on its own. The earlier row wrapped each item
+/// in a card, painted a coloured bar down its side and stacked three sizes of
+/// grey text under the name — four signals for one number.
 class _StockRow extends ConsumerWidget {
   const _StockRow({required this.stock, required this.enabled});
 
@@ -208,14 +224,19 @@ class _StockRow extends ConsumerWidget {
     final c = context.c;
     final l = context.l;
 
-    final colour = stock.availableQuantity <= 0
-        ? c.error
-        : stock.availableQuantity <= 10
-            ? c.warning
-            : c.success;
+    final isOut = stock.availableQuantity <= 0;
+    final isLow = !isOut && stock.availableQuantity <= 10;
+    final colour = isOut ? c.error : (isLow ? c.warning : c.text);
 
-    return Panel(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    // On hand is only worth a line of its own when it differs from available,
+    // which is exactly when something is reserved.
+    final detail = [
+      if (stock.reservedQuantity > 0)
+        '${l.onHand} ${stock.quantity} · ${l.reserved} ${stock.reservedQuantity}',
+      if (stock.locationName != null) stock.locationName!,
+    ].join('  ·  ');
+
+    return InkWell(
       onTap: enabled
           ? () => showStockAdjustSheet(
                 context,
@@ -225,71 +246,65 @@ class _StockRow extends ConsumerWidget {
                 locationId: stock.locationId ?? ref.read(selectedLocationProvider),
               )
           : null,
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 38,
-            decoration: BoxDecoration(
-              color: colour,
-              borderRadius: BorderRadius.circular(999),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, 12, enabled ? 8 : 16, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    stock.productName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      height: 1.2,
+                      color: c.text,
+                    ),
+                  ),
+                  if (detail.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      detail,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, height: 1.2, color: c.textMuted),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  stock.productName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  '${stock.availableQuantity}',
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: c.text,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                    color: colour,
                   ),
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 2),
                 Text(
-                  stock.reservedQuantity > 0
-                      ? '${l.onHand} ${stock.quantity} · ${l.reserved} ${stock.reservedQuantity}'
-                      : '${l.onHand} ${stock.quantity}',
-                  style: TextStyle(fontSize: 11, color: c.textMuted),
-                ),
-                if (stock.locationName != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    stock.locationName!,
-                    style: TextStyle(fontSize: 10, color: c.textDisabled),
+                  isOut ? l.outOfStock : (isLow ? l.lowStock : l.available),
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.2,
+                    fontWeight: isOut || isLow ? FontWeight.w600 : FontWeight.w400,
+                    color: isOut || isLow ? colour : c.textMuted,
                   ),
-                ],
+                ),
               ],
             ),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${stock.availableQuantity}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: colour,
-                ),
-              ),
-              Text(
-                l.available,
-                style: TextStyle(fontSize: 10, color: c.textMuted),
-              ),
-            ],
-          ),
-          if (enabled) ...[
-            const SizedBox(width: 6),
-            Icon(Icons.chevron_right, size: 18, color: c.textDisabled),
+            if (enabled) Icon(Icons.chevron_right, size: 18, color: c.textDisabled),
           ],
-        ],
+        ),
       ),
     );
   }

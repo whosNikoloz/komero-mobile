@@ -8,6 +8,7 @@ import '../../l10n_ext.dart';
 import '../../models/order.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/common.dart';
+import '../shell/app_shell.dart' show kNavClearance;
 import 'order_detail_screen.dart';
 import 'order_filter.dart';
 
@@ -138,9 +139,18 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
 
             return ListView.separated(
               controller: _scroll,
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+              // No side padding and no per-row card: the rows run the full
+              // width of the sheet and a hairline separates them, which is how
+              // a list of records reads on a phone. Boxing every order in its
+              // own rounded panel made ten orders look like ten adverts.
+              padding: const EdgeInsets.only(bottom: kNavClearance),
               itemCount: list.length + 1,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => Divider(
+                height: 1,
+                thickness: 1,
+                indent: 16,
+                color: context.c.border,
+              ),
               itemBuilder: (context, i) {
                 if (i == list.length) {
                   return ref.read(ordersProvider.notifier).hasMore
@@ -151,7 +161,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                       : const SizedBox(height: 8);
                 }
 
-                return _OrderCard(order: list[i]);
+                return _OrderRow(order: list[i]);
               },
             );
           },
@@ -161,8 +171,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   }
 }
 
-class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.order});
+/// One order as two lines: who and how much on top, what and when below.
+///
+/// Deliberately without a thumbnail. Most orders have no usable cover image,
+/// so the column became the same receipt glyph repeated down the screen — 48dp
+/// of row height per order spent saying nothing. The money is the thing an
+/// operator scans for, so it gets the right edge and the heaviest weight.
+class _OrderRow extends StatelessWidget {
+  const _OrderRow({required this.order});
 
   final OrderSummary order;
 
@@ -170,74 +186,66 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.c;
     final l = context.l;
+    final tag = context.localeTag;
 
-    return Panel(
+    return InkWell(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => OrderDetailScreen(orderId: order.id),
         ),
       ),
-      child: Row(
-        children: [
-          EntityThumb(path: order.coverImage, icon: Icons.receipt_long_outlined),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 11, 16, 11),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    order.customerName?.isNotEmpty == true
+                        ? order.customerName!
+                        : l.guestOrder,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                      color: c.text,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${l.itemCount(order.items)}  ·  '
+                    '${shortDate(order.date, locale: tag)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, height: 1.2, color: c.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        order.customerName?.isNotEmpty == true
-                            ? order.customerName!
-                            : l.guestOrder,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: c.text,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    StatusBadge(order.status),
-                  ],
+                Text(
+                  money(order.total, locale: tag),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                    color: c.text,
+                  ),
                 ),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    Text(
-                      l.itemCount(order.items),
-                      style: TextStyle(fontSize: 12, color: c.textMuted),
-                    ),
-                    Text(
-                      '  ·  ',
-                      style: TextStyle(fontSize: 12, color: c.textDisabled),
-                    ),
-                    Expanded(
-                      child: Text(
-                        shortDate(order.date, locale: context.localeTag),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 12, color: c.textMuted),
-                      ),
-                    ),
-                    Text(
-                      money(order.total, locale: context.localeTag),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: c.text,
-                      ),
-                    ),
-                  ],
-                ),
+                const SizedBox(height: 3),
+                StatusBadge(order.status),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

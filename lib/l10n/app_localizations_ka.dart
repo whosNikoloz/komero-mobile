@@ -209,6 +209,12 @@ class LKa extends L {
   String get vsLastMonth => 'გასულ თვესთან';
 
   @override
+  String get ordersToFulfil => 'დასამუშავებელი შეკვეთები';
+
+  @override
+  String get viewAll => 'ყველას ნახვა';
+
+  @override
   String get needsAttention => 'საჭიროებს ყურადღებას';
 
   @override
@@ -652,6 +658,33 @@ class LKa extends L {
   String get answer => 'პასუხი';
 
   @override
+  String get addVideo => 'დაამატე ვიდეო';
+
+  @override
+  String get videoLink => 'ვიდეოს ბმული';
+
+  @override
+  String get videoLinkHint => 'YouTube-ის ან embed ბმული';
+
+  @override
+  String get invalidVideoLink => 'ეს ვიდეოს ბმულს არ ემთხვევა';
+
+  @override
+  String get moveUp => 'ზედ ათიანება';
+
+  @override
+  String get moveDown => 'ქვედ ათიანება';
+
+  @override
+  String get formatBold => 'მუქი';
+
+  @override
+  String get formatItalic => 'დახრილი';
+
+  @override
+  String get formatBulletList => 'სია';
+
+  @override
   String get description => 'აღწერა';
 
   @override
@@ -940,4 +973,40 @@ class LKa extends L {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pullToPreview => 'ჩამოწიეთ გადასახედად';
+
+  @override
+  String get preview => 'გადახედვა';
+
+  @override
+  String get seo => 'საძიებო სისტემის ჩანაწერი';
+
+  @override
+  String get urlHandle => 'URL მისამართი';
+
+  @override
+  String get metaTitle => 'გვერდის სათაური';
+
+  @override
+  String get metaDescription => 'მეტა აღწერა';
+
+  @override
+  String get metaKeywords => 'საკვანძო სიტყვები';
+
+  @override
+  String get gtin => 'GTIN / შტრიხკოდი';
+
+  @override
+  String get mpn => 'MPN';
+
+  @override
+  String get allowIndexing => 'საძიებო სისტემებმა დააინდექსონ';
+
+  @override
+  String get canonicalUrl => 'კანონიკური URL';
+
+  @override
+  String get seoHint => 'როგორ გამოჩნდება პროდუქტი Google-ში და საიტმაპში.';
 }

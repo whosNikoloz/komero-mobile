@@ -207,6 +207,12 @@ class LEn extends L {
   String get vsLastMonth => 'vs last month';
 
   @override
+  String get ordersToFulfil => 'Orders to fulfil';
+
+  @override
+  String get viewAll => 'View all';
+
+  @override
   String get needsAttention => 'Needs attention';
 
   @override
@@ -651,6 +657,33 @@ class LEn extends L {
   String get answer => 'Answer';
 
   @override
+  String get addVideo => 'Add video';
+
+  @override
+  String get videoLink => 'Video link';
+
+  @override
+  String get videoLinkHint => 'YouTube link, or an embed link';
+
+  @override
+  String get invalidVideoLink => 'That does not look like a video link';
+
+  @override
+  String get moveUp => 'Move up';
+
+  @override
+  String get moveDown => 'Move down';
+
+  @override
+  String get formatBold => 'Bold';
+
+  @override
+  String get formatItalic => 'Italic';
+
+  @override
+  String get formatBulletList => 'Bulleted list';
+
+  @override
   String get description => 'Description';
 
   @override
@@ -940,4 +973,41 @@ class LEn extends L {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pullToPreview => 'Pull to preview';
+
+  @override
+  String get preview => 'Preview';
+
+  @override
+  String get seo => 'Search engine listing';
+
+  @override
+  String get urlHandle => 'URL handle';
+
+  @override
+  String get metaTitle => 'Page title';
+
+  @override
+  String get metaDescription => 'Meta description';
+
+  @override
+  String get metaKeywords => 'Keywords';
+
+  @override
+  String get gtin => 'GTIN / barcode';
+
+  @override
+  String get mpn => 'MPN';
+
+  @override
+  String get allowIndexing => 'Allow search engines to index';
+
+  @override
+  String get canonicalUrl => 'Canonical URL';
+
+  @override
+  String get seoHint =>
+      'How this product appears on Google and in your sitemap.';
 }
