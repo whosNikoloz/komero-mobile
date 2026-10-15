@@ -330,7 +330,6 @@
   "last30Days": "Последние 30 дней",
   "channel": "Канал",
   "orderFilterNote": "Статус и дата применяются к загруженным заказам.",
-
   "notifNewOrderTitle": "Новый заказ",
   "notifPaymentTitle": "Платёж получен",
   "notifOrderBody": "#{number} · {total}",
@@ -349,5 +348,10 @@
   "mpn": "MPN",
   "allowIndexing": "Разрешить индексацию",
   "canonicalUrl": "Канонический URL",
-  "seoHint": "Как товар выглядит в Google и в карте сайта."
+  "seoHint": "Как товар выглядит в Google и в карте сайта.",
+  "recentSearches": "Недавние запросы",
+  "noRecentSearches": "Нет недавних запросов",
+  "navigation": "Навигация",
+  "searchEverything": "Поиск товаров, заказов, страниц",
+  "clearRecent": "Очистить"
 }

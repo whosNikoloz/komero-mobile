@@ -420,3 +420,40 @@ String compactNumber(num value, {String? locale}) =>
 
 String shortDate(DateTime? value, {String? locale}) =>
     value == null ? '—' : DateFormat.MMMd(locale).add_Hm().format(value.toLocal());
+
+/// The disclosure arrow in front of a tree row. A leaf gets the same slot
+/// with nothing in it, so labels at one level all start on the same line.
+class TreeTwisty extends StatelessWidget {
+  const TreeTwisty({
+    super.key,
+    required this.hasChildren,
+    required this.isExpanded,
+    this.onToggle,
+  });
+
+  final bool hasChildren;
+  final bool isExpanded;
+  final VoidCallback? onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+
+    if (!hasChildren) return const SizedBox(width: 28);
+
+    return SizedBox(
+      width: 28,
+      height: 28,
+      child: InkWell(
+        onTap: onToggle,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedRotation(
+          turns: isExpanded ? 0.25 : 0,
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOutCubic,
+          child: Icon(Icons.chevron_right_rounded, size: 20, color: c.textSecondary),
+        ),
+      ),
+    );
+  }
+}

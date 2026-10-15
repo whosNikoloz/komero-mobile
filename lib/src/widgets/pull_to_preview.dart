@@ -174,20 +174,35 @@ class _PreviewScreenState extends State<_PreviewScreen> {
       // Tapping the bar drops back into the editor, the way Shopify does it.
       bottomNavigationBar: InkWell(
         onTap: () => Navigator.of(context).pop(),
-        child: SafeArea(
-          child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: c.surface,
-              border: Border(top: BorderSide(color: c.border)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(context.l.edit, style: TextStyle(color: c.text)),
-                Icon(Icons.keyboard_arrow_up, color: c.textSecondary),
-              ],
+        // Rounded top, shadow above it: the bar reads as a sheet the preview
+        // slides under rather than as a strip welded to the bottom. The
+        // decoration wraps the SafeArea so the surface still runs to the
+        // screen edge behind the home indicator.
+        child: Container(
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+            boxShadow: [
+              BoxShadow(
+                color: c.overlay.withValues(alpha: 0.12),
+                blurRadius: 18,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: Container(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(context.l.edit, style: TextStyle(color: c.text)),
+                  Icon(Icons.keyboard_arrow_up, color: c.textSecondary),
+                ],
+              ),
             ),
           ),
         ),

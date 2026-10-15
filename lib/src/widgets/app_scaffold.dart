@@ -37,8 +37,9 @@ class AppScaffold extends StatelessWidget {
 
   /// When set, the page name gets a chevron and opens this — the switcher
   /// between sections that live under one tab, the way the catalog's
-  /// categories and brands sit behind Products.
-  final VoidCallback? onTitleTap;
+  /// categories and brands sit behind Products. It is handed the title's own
+  /// context so the menu can drop from the title rather than from the page.
+  final void Function(BuildContext titleContext)? onTitleTap;
 
   final Widget body;
   final Widget? floatingActionButton;
@@ -90,7 +91,7 @@ class _PageTitle extends StatelessWidget {
   const _PageTitle({required this.title, required this.onTap});
 
   final String title;
-  final VoidCallback? onTap;
+  final void Function(BuildContext titleContext)? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +112,7 @@ class _PageTitle extends StatelessWidget {
     if (onTap == null) return text;
 
     return InkWell(
-      onTap: onTap,
+      onTap: () => onTap!(context),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),

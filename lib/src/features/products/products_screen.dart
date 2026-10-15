@@ -11,7 +11,6 @@ import '../../models/product.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/common.dart';
 import '../shell/app_shell.dart' show kNavClearance;
-import '../../widgets/sheet.dart';
 import '../dashboard/dashboard_screen.dart' show meProvider;
 import 'catalog_screen.dart';
 import 'product_edit_screen.dart';
@@ -47,7 +46,7 @@ class ProductsScreen extends ConsumerWidget {
       // The title is the way into the rest of the catalog — categories, brands
       // and variant groups all hang off Products rather than earning tabs of
       // their own.
-      onTitleTap: () => showCatalogSwitcher(context),
+      onTitleTap: showCatalogSwitcher,
       actions: [
         if (canManage)
           IconButton(
@@ -337,40 +336,95 @@ class _FilterAction extends ConsumerWidget {
   }
 }
 
-/// The sections behind the Products title. Products itself is the one you are
-/// on, so it is listed but inert — it is there to say where you are, the way
+/// The sections behind the Products title — a menu that drops from the title
+/// itself rather than a sheet from the bottom, because the title is what it
+/// belongs to. Products is listed but inert: it says where you are, the way
 /// the web admin's catalog menu does.
-Future<void> showCatalogSwitcher(BuildContext context) async {
-  final l = context.l;
-  final c = context.c;
+Future<void> showCatalogSwitcher(BuildContext titleContext) async {
+  final l = titleContext.l;
+  final c = titleContext.c;
+  final box = titleContext.findRenderObject() as RenderBox?;
+  final overlay =
+      Navigator.of(titleContext).overlay!.context.findRenderObject() as RenderBox;
 
-  final kind = await showKomeroSheet<CatalogKind>(
-    context,
-    title: l.catalog,
-    builder: (sheetContext) => Column(
-      children: [
-        ListTile(
-          leading: Icon(Icons.inventory_2_outlined, color: c.primary),
-          title: Text(
-            l.navProducts,
-            style: TextStyle(fontWeight: FontWeight.w600, color: c.primary),
-          ),
-          trailing: Icon(Icons.check, size: 20, color: c.primary),
-          onTap: () => Navigator.of(sheetContext).pop(),
-        ),
-        for (final kind in CatalogKind.values)
-          ListTile(
-            leading: Icon(kind.icon),
-            title: Text(kind.title(l)),
-            onTap: () => Navigator.of(sheetContext).pop(kind),
-          ),
-      ],
+  if (box == null) return;
+
+  // Anchored to the title's left edge and hung just under it.
+  final origin = box.localToGlobal(Offset(0, box.size.height + 6), ancestor: overlay);
+
+  final kind = await showMenu<CatalogKind>(
+    context: titleContext,
+    color: c.card,
+    surfaceTintColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(14),
+      side: BorderSide(color: c.border),
     ),
+    position: RelativeRect.fromLTRB(
+      origin.dx,
+      origin.dy,
+      overlay.size.width - origin.dx - 240,
+      0,
+    ),
+    constraints: const BoxConstraints(minWidth: 220),
+    items: [
+      PopupMenuItem(
+        enabled: false,
+        height: 44,
+        child: _MenuRow(
+          icon: Icons.inventory_2_outlined,
+          label: l.navProducts,
+          selected: true,
+        ),
+      ),
+      for (final kind in CatalogKind.values)
+        PopupMenuItem(
+          value: kind,
+          height: 44,
+          child: _MenuRow(icon: kind.icon, label: kind.title(l)),
+        ),
+    ],
   );
 
-  if (kind == null || !context.mounted) return;
+  if (kind == null || !titleContext.mounted) return;
 
-  await Navigator.of(context).push(
+  await Navigator.of(titleContext).push(
     MaterialPageRoute(builder: (_) => CatalogScreen(kind: kind)),
   );
+}
+
+class _MenuRow extends StatelessWidget {
+  const _MenuRow({
+    required this.icon,
+    required this.label,
+    this.selected = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final tint = selected ? c.primary : c.textSecondary;
+
+    return Row(
+      children: [
+        Icon(icon, size: 19, color: tint),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+              color: selected ? c.primary : c.text,
+            ),
+          ),
+        ),
+        if (selected) Icon(Icons.check_rounded, size: 18, color: c.primary),
+      ],
+    );
+  }
 }

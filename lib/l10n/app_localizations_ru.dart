@@ -1021,4 +1021,19 @@ class LRu extends L {
 
   @override
   String get seoHint => 'Как товар выглядит в Google и в карте сайта.';
+
+  @override
+  String get recentSearches => 'Недавние запросы';
+
+  @override
+  String get noRecentSearches => 'Нет недавних запросов';
+
+  @override
+  String get navigation => 'Навигация';
+
+  @override
+  String get searchEverything => 'Поиск товаров, заказов, страниц';
+
+  @override
+  String get clearRecent => 'Очистить';
 }

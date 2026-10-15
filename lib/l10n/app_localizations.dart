@@ -1898,6 +1898,36 @@ abstract class L {
   /// In en, this message translates to:
   /// **'How this product appears on Google and in your sitemap.'**
   String get seoHint;
+
+  /// No description provided for @recentSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent searches'**
+  String get recentSearches;
+
+  /// No description provided for @noRecentSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent searches'**
+  String get noRecentSearches;
+
+  /// No description provided for @navigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation'**
+  String get navigation;
+
+  /// No description provided for @searchEverything.
+  ///
+  /// In en, this message translates to:
+  /// **'Search products, orders, pages'**
+  String get searchEverything;
+
+  /// No description provided for @clearRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearRecent;
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {

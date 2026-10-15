@@ -1010,4 +1010,19 @@ class LEn extends L {
   @override
   String get seoHint =>
       'How this product appears on Google and in your sitemap.';
+
+  @override
+  String get recentSearches => 'Recent searches';
+
+  @override
+  String get noRecentSearches => 'No recent searches';
+
+  @override
+  String get navigation => 'Navigation';
+
+  @override
+  String get searchEverything => 'Search products, orders, pages';
+
+  @override
+  String get clearRecent => 'Clear';
 }

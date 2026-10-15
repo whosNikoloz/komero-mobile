@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/tokens.dart';
 import '../l10n_ext.dart';
 import '../models/product.dart';
+import 'common.dart';
 
 /// One line of an editor: what the field is, what it currently holds, and a
 /// chevron into the screen that changes it.
@@ -458,15 +459,27 @@ class _PickerScreen<T> extends StatefulWidget {
 class _PickerScreenState<T> extends State<_PickerScreen<T>> {
   String _query = '';
 
-  List<({T item, int depth})> _ordered() {
+  /// Branches the user has folded away. Empty to start: the tree opens
+  /// expanded, so everything is visible without a tap.
+  final _collapsed = <String>{};
+
+  List<({T item, int depth, bool hasChildren})> _ordered() {
     final idOf = widget.idOf;
     final parentOf = widget.parentOf;
 
     if (idOf == null || parentOf == null) {
-      return [for (final item in widget.items) (item: item, depth: 0)];
+      return [
+        for (final item in widget.items)
+          (item: item, depth: 0, hasChildren: false),
+      ];
     }
 
-    return orderAsTree(widget.items, idOf: idOf, parentOf: parentOf);
+    return orderAsTree(
+      widget.items,
+      idOf: idOf,
+      parentOf: parentOf,
+      collapsed: _collapsed,
+    );
   }
 
   @override
@@ -481,7 +494,7 @@ class _PickerScreenState<T> extends State<_PickerScreen<T>> {
         : [
             for (final item in widget.items)
               if (widget.labelOf(item).toLowerCase().contains(query))
-                (item: item, depth: 0),
+                (item: item, depth: 0, hasChildren: false),
           ];
 
     return Scaffold(
@@ -531,6 +544,16 @@ class _PickerScreenState<T> extends State<_PickerScreen<T>> {
                   _Choice(
                     label: widget.labelOf(row.item),
                     depth: row.depth,
+                    hasChildren: row.hasChildren,
+                    isExpanded:
+                        !_collapsed.contains(widget.idOf?.call(row.item)),
+                    onToggle: row.hasChildren
+                        ? () => setState(() {
+                              final id = widget.idOf!(row.item);
+                              if (id == null) return;
+                              if (!_collapsed.remove(id)) _collapsed.add(id);
+                            })
+                        : null,
                     isSelected: row.item == widget.selected,
                     onTap: () =>
                         Navigator.of(context).pop(PickerResult<T>(row.item)),
@@ -551,6 +574,9 @@ class _Choice extends StatelessWidget {
     required this.onTap,
     this.muted = false,
     this.depth = 0,
+    this.hasChildren = false,
+    this.isExpanded = true,
+    this.onToggle,
   });
 
   final String label;
@@ -558,6 +584,12 @@ class _Choice extends StatelessWidget {
   final VoidCallback onTap;
   final bool muted;
   final int depth;
+  final bool hasChildren;
+  final bool isExpanded;
+
+  /// Folds this branch away. Null on a leaf, which still reserves the twisty's
+  /// width so every label on a level starts on the same line.
+  final VoidCallback? onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -566,13 +598,14 @@ class _Choice extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16 + depth * 18, 14, 16, 14),
+        padding: EdgeInsets.fromLTRB(12 + depth * 18, 14, 16, 14),
         child: Row(
           children: [
-            if (depth > 0) ...[
-              Icon(Icons.subdirectory_arrow_right, size: 14, color: c.textMuted),
-              const SizedBox(width: 6),
-            ],
+            TreeTwisty(
+              hasChildren: hasChildren,
+              isExpanded: isExpanded,
+              onToggle: onToggle,
+            ),
             Expanded(
               child: Text(
                 label,

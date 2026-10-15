@@ -56,6 +56,10 @@ class CatalogScreen extends ConsumerStatefulWidget {
 class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   String _query = '';
 
+  /// Branches the user has folded away. Empty to start: the tree opens
+  /// expanded, the way the web admin's category tree does.
+  final _collapsed = <String>{};
+
   Future<void> _edit({NamedRef? existing}) async {
     final l = context.l;
     final saved = await showCatalogEditor(
@@ -157,11 +161,12 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                           all,
                           idOf: (item) => item.id,
                           parentOf: (item) => item.parentId,
+                          collapsed: _collapsed,
                         )
                       : [
                           for (final item in all)
                             if (item.name.toLowerCase().contains(query))
-                              (item: item, depth: 0),
+                              (item: item, depth: 0, hasChildren: false),
                         ];
 
                   if (matches.isEmpty) {
@@ -176,17 +181,33 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                     itemBuilder: (_, i) {
                       final item = matches[i].item;
                       final depth = matches[i].depth;
+                      final hasChildren = matches[i].hasChildren;
 
                       return ListTile(
-                        contentPadding: EdgeInsets.only(left: 16 + depth * 18, right: 8),
-                        leading: Icon(
-                          depth == 0 ? kind.icon : Icons.subdirectory_arrow_right,
-                          size: 20,
-                          color: c.textMuted,
+                        contentPadding:
+                            EdgeInsets.only(left: 12 + depth * 18, right: 8),
+                        horizontalTitleGap: 6,
+                        minLeadingWidth: 28,
+                        leading: TreeTwisty(
+                          hasChildren: hasChildren,
+                          isExpanded: !_collapsed.contains(item.id),
+                          onToggle: () => setState(() {
+                            if (!_collapsed.remove(item.id)) {
+                              _collapsed.add(item.id);
+                            }
+                          }),
                         ),
                         title: Text(
                           item.name,
-                          style: TextStyle(fontSize: 15, color: c.text),
+                          style: TextStyle(
+                            fontSize: 15,
+                            // A branch reads heavier than its leaves, so the
+                            // tree's shape is legible without counting indents.
+                            fontWeight: hasChildren
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: c.text,
+                          ),
                         ),
                         trailing: kind.isEditable
                             ? IconButton(

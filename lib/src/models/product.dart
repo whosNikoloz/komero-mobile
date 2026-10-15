@@ -81,10 +81,14 @@ class NamedRef {
 /// Depth-first order with each item's depth, so children read as indented
 /// rows under their parent. Items whose parent is missing count as roots,
 /// which also keeps a broken link from hiding them.
-List<({T item, int depth})> orderAsTree<T>(
+///
+/// The tree reads open: a node's children are listed unless its id is in
+/// [collapsed]. `hasChildren` is what a row hangs its twisty off.
+List<({T item, int depth, bool hasChildren})> orderAsTree<T>(
   List<T> items, {
   required String? Function(T) idOf,
   required String? Function(T) parentOf,
+  Set<String> collapsed = const {},
 }) {
   final ids = {for (final item in items) idOf(item)};
   final byParent = <String?, List<T>>{};
@@ -94,12 +98,18 @@ List<({T item, int depth})> orderAsTree<T>(
     byParent.putIfAbsent(ids.contains(parent) ? parent : null, () => []).add(item);
   }
 
-  final out = <({T item, int depth})>[];
+  final out = <({T item, int depth, bool hasChildren})>[];
 
   void walk(String? parent, int depth) {
     for (final item in byParent[parent] ?? const []) {
-      out.add((item: item, depth: depth));
-      if (depth < 6) walk(idOf(item), depth + 1);
+      final id = idOf(item);
+      final hasChildren = byParent[id]?.isNotEmpty ?? false;
+
+      out.add((item: item, depth: depth, hasChildren: hasChildren));
+
+      if (depth < 6 && hasChildren && !collapsed.contains(id)) {
+        walk(id, depth + 1);
+      }
     }
   }
 

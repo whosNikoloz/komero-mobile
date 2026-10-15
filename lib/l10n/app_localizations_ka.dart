@@ -1009,4 +1009,19 @@ class LKa extends L {
 
   @override
   String get seoHint => 'როგორ გამოჩნდება პროდუქტი Google-ში და საიტმაპში.';
+
+  @override
+  String get recentSearches => 'ბოლო ძიებები';
+
+  @override
+  String get noRecentSearches => 'ბოლო ძიებები არ არის';
+
+  @override
+  String get navigation => 'ნავიგაცია';
+
+  @override
+  String get searchEverything => 'ძებნა პროდუქტებში, შეკვეთებში, გვერდებზე';
+
+  @override
+  String get clearRecent => 'გასუფთავება';
 }

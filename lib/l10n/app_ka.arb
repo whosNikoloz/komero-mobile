@@ -330,7 +330,6 @@
   "last30Days": "ბოლო 30 დღე",
   "channel": "არხი",
   "orderFilterNote": "სტატუსი და თარიღი ჩატვირთულ შეკვეთებზე მოქმედებს.",
-
   "notifNewOrderTitle": "ახალი შეკვეთა",
   "notifPaymentTitle": "გადახდა მიღებულია",
   "notifOrderBody": "#{number} · {total}",
@@ -349,5 +348,10 @@
   "mpn": "MPN",
   "allowIndexing": "საძიებო სისტემებმა დააინდექსონ",
   "canonicalUrl": "კანონიკური URL",
-  "seoHint": "როგორ გამოჩნდება პროდუქტი Google-ში და საიტმაპში."
+  "seoHint": "როგორ გამოჩნდება პროდუქტი Google-ში და საიტმაპში.",
+  "recentSearches": "ბოლო ძიებები",
+  "noRecentSearches": "ბოლო ძიებები არ არის",
+  "navigation": "ნავიგაცია",
+  "searchEverything": "ძებნა პროდუქტებში, შეკვეთებში, გვერდებზე",
+  "clearRecent": "გასუფთავება"
 }

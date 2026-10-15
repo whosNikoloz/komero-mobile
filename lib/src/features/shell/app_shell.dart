@@ -10,10 +10,10 @@ import '../../core/theme/tokens.dart';
 import '../../l10n_ext.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../inventory/inventory_screen.dart';
-import '../inventory/scanner_screen.dart';
 import '../orders/order_detail_screen.dart';
 import '../orders/orders_screen.dart';
 import '../products/products_screen.dart';
+import '../search/search_screen.dart';
 import '../settings/settings_screen.dart';
 
 /// What a tab's scroll view leaves below its last row to clear the floating
@@ -87,12 +87,14 @@ class AppShell extends ConsumerWidget {
           HapticFeedback.selectionClick();
           ref.read(navIndexProvider.notifier).state = i;
         },
-        // The scanner is the one action an operator fires over and over, and
+        // Search is the one control an operator reaches for from anywhere and
         // it is not a destination — a detached button is where it belongs.
-        onScan: () {
+        // The scanner moved inside the search field: scanning a barcode is a
+        // way of searching for a product, not a separate errand.
+        onSearch: () {
           HapticFeedback.lightImpact();
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const ScannerScreen()),
+            MaterialPageRoute(builder: (_) => const SearchScreen()),
           );
         },
         items: [
@@ -112,7 +114,7 @@ typedef _NavItem = ({IconData icon, IconData selected, String label});
 /// Three detached groups rather than one bar: a round action on each side and
 /// the destinations in a pill between them. It reads as a set of app controls
 /// floating over the screen instead of as OS chrome, and the round buttons put
-/// the two one-handed actions — scan, and the account — under the thumbs.
+/// the two one-handed actions — search, and the account — under the thumbs.
 ///
 /// Labels are dropped for width, so each control carries its label as a
 /// semantics label and a tooltip: the name must still reach a screen reader
@@ -121,13 +123,13 @@ class _FloatingNav extends StatelessWidget {
   const _FloatingNav({
     required this.index,
     required this.onSelect,
-    required this.onScan,
+    required this.onSearch,
     required this.items,
   });
 
   final int index;
   final ValueChanged<int> onSelect;
-  final VoidCallback onScan;
+  final VoidCallback onSearch;
   final List<_NavItem> items;
 
   /// The last destination is the account, which sits in its own circle on the
@@ -148,9 +150,9 @@ class _FloatingNav extends StatelessWidget {
             _Floating(
               width: _Floating.height,
               child: _IconTap(
-                icon: Icons.qr_code_scanner,
-                label: l.scanBarcode,
-                onTap: onScan,
+                icon: Icons.search_rounded,
+                label: l.search,
+                onTap: onSearch,
               ),
             ),
             const SizedBox(width: 8),
@@ -209,26 +211,40 @@ class _Floating extends StatelessWidget {
     final c = context.c;
     final radius = BorderRadius.circular(height / 2);
 
-    return ClipRRect(
-      borderRadius: radius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            color: c.card.withValues(alpha: 0.72),
-            borderRadius: radius,
-            border: Border.all(color: c.border.withValues(alpha: 0.6)),
-            boxShadow: [
-              BoxShadow(
-                color: c.overlay.withValues(alpha: 0.10),
-                blurRadius: 22,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    // The shadow goes on the outside of the clip — inside it the ClipRRect
+    // cuts it away and nothing lifts off the page. Two layers: a tight dark
+    // one for the contact edge, a wide soft one for the drop.
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: c.overlay.withValues(alpha: 0.10),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
-          child: child,
+          BoxShadow(
+            color: c.overlay.withValues(alpha: 0.16),
+            blurRadius: 24,
+            spreadRadius: -2,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: c.card.withValues(alpha: 0.72),
+              borderRadius: radius,
+              border: Border.all(color: c.border.withValues(alpha: 0.6)),
+            ),
+            child: child,
+          ),
         ),
       ),
     );
