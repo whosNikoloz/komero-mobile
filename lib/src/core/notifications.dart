@@ -110,8 +110,19 @@ class PushService {
   static const _icon = 'ic_notification'; // white silhouette of the K mark
   static const _ordersGroup = 'komero_orders';
 
+  /// The cash-register chime, `assets/brand/sale_sound.mp3`, shipped twice:
+  /// `android/app/src/main/res/raw/sale_sound.mp3` and, as iOS will not play
+  /// an mp3, `ios/Runner/sale_sound.caf` (LPCM, wired into the Runner target).
+  /// The Flutter asset is not reachable from either notification layer.
+  static const _ordersSound = RawResourceAndroidNotificationSound('sale_sound');
+  static const _ordersSoundIos = 'sale_sound.caf';
+
+  // ponytail: `_v2` because Android freezes a channel's sound at creation —
+  // an install that already has `komero_orders` would keep the system ding
+  // forever. Bump the suffix again if the sound changes, and keep it in sync
+  // with the manifest's default_notification_channel_id.
   static const _ordersChannel = AndroidNotificationDetails(
-    'komero_orders',
+    'komero_orders_v2',
     'Orders',
     channelDescription: 'New orders, payments and status changes',
     importance: Importance.high,
@@ -119,6 +130,7 @@ class PushService {
     icon: _icon,
     color: _accent,
     groupKey: _ordersGroup,
+    sound: _ordersSound,
   );
 
   static const _stockChannel = AndroidNotificationDetails(
@@ -310,6 +322,7 @@ class PushService {
             icon: _icon,
             color: _accent,
             groupKey: _ordersGroup,
+            sound: _ordersSound,
             // Expands to the full line instead of truncating mid-total, and
             // puts the store above it so an operator running two shops can
             // tell them apart without opening the app.
@@ -323,6 +336,7 @@ class PushService {
           ),
           iOS: DarwinNotificationDetails(
             subtitle: storeName,
+            sound: _ordersSoundIos,
             // Groups the orders into one stack in Notification Centre.
             threadIdentifier: _ordersGroup,
             // An order is money waiting on a person; it earns the right to

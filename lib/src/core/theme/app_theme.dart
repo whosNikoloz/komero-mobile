@@ -31,7 +31,8 @@ ThemeData komeroTheme(KomeroColors c, Brightness brightness) {
     canvasColor: c.surface,
     dividerColor: c.border,
     extensions: [c],
-    // ponytail: same rise-up transition on every platform.
+    // ponytail: same rise-up transition, with its own edge-back gesture, on
+    // every platform.
     pageTransitionsTheme: PageTransitionsTheme(
       builders: {
         for (final p in TargetPlatform.values)

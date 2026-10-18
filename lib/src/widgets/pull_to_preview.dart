@@ -24,11 +24,53 @@ class PullToPreview extends StatefulWidget {
   State<PullToPreview> createState() => _PullToPreviewState();
 }
 
-class _PullToPreviewState extends State<PullToPreview> {
-  static const _threshold = 72.0;
+/// Distance the editor must be pulled down before letting go opens the
+/// preview, and the furthest the hint will follow the finger.
+const pullThreshold = 72.0;
+const maxPull = pullThreshold * 1.5;
 
+/// One scroll notification folded into the pull state — pure, so the gesture
+/// is testable without a platform web view behind it.
+///
+/// Two platform shapes to cover: clamping physics (Android) holds the offset
+/// at 0 and reports `overscroll`, while bouncing physics (iOS) reports no
+/// overscroll at all and simply lets the offset go negative.
+///
+/// `release` is read off `dragDetails`, which only the drag phase carries. It
+/// cannot come from `ScrollEndNotification` or a `ScrollDirection.idle`
+/// `UserScrollNotification`: on iOS both of those arrive after the bounce has
+/// already sprung back to 0, with the pull long erased.
+@visibleForTesting
+({double pull, bool bouncing, bool release, bool open}) pullStep(
+  ScrollNotification n,
+  double pull,
+) {
+  final dragging = switch (n) {
+    OverscrollNotification(:final dragDetails) => dragDetails != null,
+    ScrollUpdateNotification(:final dragDetails) => dragDetails != null,
+    _ => false,
+  };
+
+  if (!dragging) {
+    return (pull: 0, bouncing: false, release: pull > 0, open: pull >= pullThreshold);
+  }
+
+  if (n.metrics.pixels < 0) {
+    return (pull: -n.metrics.pixels, bouncing: true, release: false, open: false);
+  }
+  if (n is OverscrollNotification && n.overscroll < 0) {
+    return (pull: pull - n.overscroll, bouncing: false, release: false, open: false);
+  }
+  return (pull: 0, bouncing: false, release: false, open: false);
+}
+
+class _PullToPreviewState extends State<PullToPreview> {
   double _pull = 0;
   bool _opening = false;
+
+  /// True when the platform's own physics already slid the content down for us
+  /// (iOS bounce), so the hint must not be translated a second time.
+  bool _bouncing = false;
 
   /// Built and told to load the moment the pull starts, so the page is usually
   /// painted by the time the finger lifts — the trick that makes Shopify's
@@ -47,24 +89,27 @@ class _PullToPreviewState extends State<PullToPreview> {
     if (!widget.enabled || widget.url.isEmpty || _opening) return false;
     if (n.metrics.axis != Axis.vertical) return false;
 
-    if (n is OverscrollNotification && n.overscroll < 0) {
-      _warmUp();
-      setState(() => _pull = (_pull - n.overscroll).clamp(0.0, _threshold * 1.5));
-    } else if (n is ScrollUpdateNotification && n.metrics.pixels > 0 && _pull > 0) {
-      setState(() => _pull = 0);
-    } else if (n is ScrollEndNotification && _pull > 0) {
-      final open = _pull >= _threshold;
-      setState(() => _pull = 0);
-      if (open) _open();
-    }
+    final step = pullStep(n, _pull);
+    if (step.pull > 0) _warmUp();
+    _set(step.pull, step.bouncing);
+    if (step.release && step.open) _open();
     return false;
+  }
+
+  void _set(double pull, bool bouncing) {
+    final next = pull.clamp(0.0, maxPull);
+    if (next == _pull && bouncing == _bouncing) return;
+    setState(() {
+      _pull = next;
+      _bouncing = bouncing;
+    });
   }
 
   Future<void> _open() async {
     _warmUp();
     _opening = true;
     await Navigator.of(context).push(
-      MaterialPageRoute(
+      _PreviewRoute(
         builder: (_) => _PreviewScreen(controller: _web!, url: widget.url),
       ),
     );
@@ -74,7 +119,7 @@ class _PullToPreviewState extends State<PullToPreview> {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
-    final progress = (_pull / _threshold).clamp(0.0, 1.0);
+    final progress = (_pull / pullThreshold).clamp(0.0, 1.0);
 
     return NotificationListener<ScrollNotification>(
       onNotification: _onNotification,
@@ -85,7 +130,7 @@ class _PullToPreviewState extends State<PullToPreview> {
             top: 0,
             left: 0,
             right: 0,
-            height: _threshold,
+            height: pullThreshold,
             child: Opacity(
               opacity: progress,
               child: Center(
@@ -108,10 +153,82 @@ class _PullToPreviewState extends State<PullToPreview> {
             ),
           ),
           Transform.translate(
-            offset: Offset(0, _pull),
+            offset: Offset(0, _bouncing ? 0 : _pull),
             child: widget.child,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The preview arrives the way Shopify's does: a rounded card sliding down
+/// from the top edge over the editor, which stays put underneath instead of
+/// playing its own exit. Pushed with the app's default route the whole thing
+/// was a 220ms cross-fade, which reads as a jump cut.
+class _PreviewRoute<T> extends PageRouteBuilder<T> {
+  _PreviewRoute({required WidgetBuilder builder})
+      : super(
+          // See-through while sliding, so the editor shows above the card.
+          // ponytail: it also keeps the editor painting underneath once the
+          // preview has landed — make it opaque on arrival if that ever shows
+          // up in a frame profile.
+          opaque: false,
+          pageBuilder: (context, _, _) => builder(context),
+          transitionDuration: const Duration(milliseconds: 380),
+          reverseTransitionDuration: const Duration(milliseconds: 320),
+          transitionsBuilder: _slideDown,
+        );
+
+  // The editor would otherwise fade out under a card it is supposed to stay
+  // visible behind.
+  @override
+  bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) => false;
+
+  static Widget _slideDown(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    // Fast out of the gate, long settle — the iOS sheet feel, and the reason a
+    // plain easeOut looks cheap next to it.
+    final curve = CurvedAnimation(
+      parent: animation,
+      curve: Curves.fastEaseInToSlowEaseOut,
+      reverseCurve: Curves.fastEaseInToSlowEaseOut.flipped,
+    );
+
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, -1),
+        end: Offset.zero,
+      ).animate(curve),
+      child: AnimatedBuilder(
+        animation: curve,
+        // The corners and the shadow only exist while the card is in flight;
+        // at rest it is an ordinary full-bleed page.
+        builder: (context, child) {
+          final lift = 1 - curve.value;
+          if (lift == 0) return child!;
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28 * lift),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.18 * lift),
+                  blurRadius: 24,
+                  offset: Offset(0, 8 * lift),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28 * lift),
+              child: child,
+            ),
+          );
+        },
+        child: child,
       ),
     );
   }
