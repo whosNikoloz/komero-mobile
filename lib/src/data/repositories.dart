@@ -97,6 +97,68 @@ class StatsRepository {
         .toList();
   }
 
+  /// What shoppers typed into search — including the terms that found nothing.
+  Future<List<SearchTerm>> searches({
+    DateTime? from,
+    DateTime? to,
+    int limit = 30,
+  }) async {
+    final res = await _api.get<List<dynamic>>(
+      'api/admin/behavior/searches',
+      query: {
+        if (from != null) 'from': _d(from),
+        if (to != null) 'to': _d(to),
+        'limit': limit,
+      },
+    );
+
+    return res
+        .map((e) => SearchTerm.fromJson((e as Map).cast<String, dynamic>()))
+        .toList();
+  }
+
+  /// Interest per product: views, cart adds and what share of them converted.
+  Future<List<ProductBehavior>> productBehavior({
+    DateTime? from,
+    DateTime? to,
+    BehaviorSort sort = BehaviorSort.views,
+    int limit = 20,
+  }) async {
+    final res = await _api.get<List<dynamic>>(
+      'api/admin/behavior/products',
+      query: {
+        if (from != null) 'from': _d(from),
+        if (to != null) 'to': _d(to),
+        'sort': sort.wire,
+        'limit': limit,
+      },
+    );
+
+    return res
+        .map((e) => ProductBehavior.fromJson((e as Map).cast<String, dynamic>()))
+        .toList();
+  }
+
+  /// Checkouts that were started and never finished.
+  Future<Paged<AbandonedSession>> abandonedCheckouts({
+    DateTime? from,
+    DateTime? to,
+    int page = 1,
+    int pageSize = 20,
+  }) async =>
+      Paged.fromJson(
+        await _api.get<Map<String, dynamic>>(
+          'api/admin/behavior/abandoned-checkouts',
+          query: {
+            if (from != null) 'from': _d(from),
+            if (to != null) 'to': _d(to),
+            'page': page,
+            'pageSize': pageSize,
+          },
+        ),
+        AbandonedSession.fromJson,
+      );
+
   static String _d(DateTime v) => v.toIso8601String().split('T').first;
 }
 

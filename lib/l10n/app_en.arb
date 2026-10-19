@@ -75,6 +75,53 @@
   "funnelCart": "Added to cart",
   "funnelCheckout": "Started checkout",
   "funnelPurchased": "Purchased",
+  "rangeDays": "Last {count} days",
+  "@rangeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customRange": "Custom",
+  "customerBehavior": "Customer behaviour",
+  "tabOverview": "Overview",
+  "tabTraffic": "Traffic",
+  "tabCatalog": "Catalog",
+  "behaviorHint": "Visits, funnel, searches and abandoned checkouts",
+  "visitsOverTime": "Visits over time",
+  "contactClicks": "Contact clicks",
+  "cartAbandonment": "Cart abandonment",
+  "checkoutAbandonment": "Checkout abandonment",
+  "searchesLabel": "Searches",
+  "wishlistAdds": "Wishlist adds",
+  "trafficSources": "Traffic sources",
+  "sourceDirect": "Direct",
+  "searchTerms": "What shoppers search",
+  "noResultSearches": "{count} with no results",
+  "@noResultSearches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productInterest": "Product interest",
+  "sortMostViewed": "Most viewed",
+  "sortMostAddedToCart": "Most added to cart",
+  "sortMostWishlisted": "Most wishlisted",
+  "sortBestSelling": "Best selling",
+  "sortLowestCartRate": "Lowest cart rate",
+  "viewsLabel": "views",
+  "cartAdds": "In cart",
+  "sold": "Sold",
+  "abandonedCheckouts": "Abandoned checkouts",
+  "stepOpened": "Opened checkout",
+  "stepContact": "Contact details",
+  "stepShipping": "Shipping",
+  "stepPayment": "Payment",
+  "stepSubmitted": "Submitted",
+  "guestShopper": "Guest",
   "vsLastMonth": "vs last month",
   "ordersToFulfil": "Orders to fulfil",
   "viewAll": "View all",

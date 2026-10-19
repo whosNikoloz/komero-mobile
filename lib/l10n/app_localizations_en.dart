@@ -204,6 +204,109 @@ class LEn extends L {
   String get funnelPurchased => 'Purchased';
 
   @override
+  String rangeDays(int count) {
+    return 'Last $count days';
+  }
+
+  @override
+  String get customRange => 'Custom';
+
+  @override
+  String get customerBehavior => 'Customer behaviour';
+
+  @override
+  String get tabOverview => 'Overview';
+
+  @override
+  String get tabTraffic => 'Traffic';
+
+  @override
+  String get tabCatalog => 'Catalog';
+
+  @override
+  String get behaviorHint => 'Visits, funnel, searches and abandoned checkouts';
+
+  @override
+  String get visitsOverTime => 'Visits over time';
+
+  @override
+  String get contactClicks => 'Contact clicks';
+
+  @override
+  String get cartAbandonment => 'Cart abandonment';
+
+  @override
+  String get checkoutAbandonment => 'Checkout abandonment';
+
+  @override
+  String get searchesLabel => 'Searches';
+
+  @override
+  String get wishlistAdds => 'Wishlist adds';
+
+  @override
+  String get trafficSources => 'Traffic sources';
+
+  @override
+  String get sourceDirect => 'Direct';
+
+  @override
+  String get searchTerms => 'What shoppers search';
+
+  @override
+  String noResultSearches(int count) {
+    return '$count with no results';
+  }
+
+  @override
+  String get productInterest => 'Product interest';
+
+  @override
+  String get sortMostViewed => 'Most viewed';
+
+  @override
+  String get sortMostAddedToCart => 'Most added to cart';
+
+  @override
+  String get sortMostWishlisted => 'Most wishlisted';
+
+  @override
+  String get sortBestSelling => 'Best selling';
+
+  @override
+  String get sortLowestCartRate => 'Lowest cart rate';
+
+  @override
+  String get viewsLabel => 'views';
+
+  @override
+  String get cartAdds => 'In cart';
+
+  @override
+  String get sold => 'Sold';
+
+  @override
+  String get abandonedCheckouts => 'Abandoned checkouts';
+
+  @override
+  String get stepOpened => 'Opened checkout';
+
+  @override
+  String get stepContact => 'Contact details';
+
+  @override
+  String get stepShipping => 'Shipping';
+
+  @override
+  String get stepPayment => 'Payment';
+
+  @override
+  String get stepSubmitted => 'Submitted';
+
+  @override
+  String get guestShopper => 'Guest';
+
+  @override
   String get vsLastMonth => 'vs last month';
 
   @override

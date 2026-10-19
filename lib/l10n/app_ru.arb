@@ -75,6 +75,53 @@
   "funnelCart": "Добавили в корзину",
   "funnelCheckout": "Начали оформление",
   "funnelPurchased": "Купили",
+  "rangeDays": "Последние {count} дн.",
+  "@rangeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customRange": "Период",
+  "customerBehavior": "Поведение покупателей",
+  "tabOverview": "Обзор",
+  "tabTraffic": "Трафик",
+  "tabCatalog": "Каталог",
+  "behaviorHint": "Визиты, воронка, поиск и брошенные оформления",
+  "visitsOverTime": "Визиты по дням",
+  "contactClicks": "Клики по контактам",
+  "cartAbandonment": "Брошенные корзины",
+  "checkoutAbandonment": "Брошенные оформления",
+  "searchesLabel": "Поиски",
+  "wishlistAdds": "Добавления в избранное",
+  "trafficSources": "Источники трафика",
+  "sourceDirect": "Прямые",
+  "searchTerms": "Что ищут покупатели",
+  "noResultSearches": "{count} без результатов",
+  "@noResultSearches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productInterest": "Интерес к товарам",
+  "sortMostViewed": "Самые просматриваемые",
+  "sortMostAddedToCart": "Чаще в корзине",
+  "sortMostWishlisted": "Чаще в избранном",
+  "sortBestSelling": "Самые продаваемые",
+  "sortLowestCartRate": "Низкая конверсия в корзину",
+  "viewsLabel": "просмотры",
+  "cartAdds": "В корзине",
+  "sold": "Продано",
+  "abandonedCheckouts": "Брошенные оформления",
+  "stepOpened": "Открыл оформление",
+  "stepContact": "Контактные данные",
+  "stepShipping": "Доставка",
+  "stepPayment": "Оплата",
+  "stepSubmitted": "Отправлен",
+  "guestShopper": "Гость",
   "vsLastMonth": "к прошлому месяцу",
   "ordersToFulfil": "Заказы к обработке",
   "viewAll": "Смотреть все",

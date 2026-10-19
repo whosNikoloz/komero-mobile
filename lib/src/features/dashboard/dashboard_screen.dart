@@ -13,6 +13,8 @@ import '../../widgets/branding.dart';
 import '../../widgets/common.dart';
 import '../inventory/inventory_screen.dart' show StockFilter, stockFilterProvider;
 import '../shell/app_shell.dart' show kNavClearance, navIndexProvider;
+import 'behavior_screen.dart';
+import 'stats_range.dart';
 
 final meProvider = FutureProvider((ref) => ref.watch(authRepositoryProvider).me());
 
@@ -20,12 +22,11 @@ final summaryProvider =
     FutureProvider((ref) => ref.watch(statsRepositoryProvider).summary());
 
 final dashboardProvider = FutureProvider((ref) {
-  final now = DateTime.now();
+  final range = ref.watch(statsRangeProvider);
 
-  return ref.watch(statsRepositoryProvider).dashboard(
-        from: now.subtract(const Duration(days: 29)),
-        to: now,
-      );
+  return ref
+      .watch(statsRepositoryProvider)
+      .dashboard(from: range.from, to: range.to);
 });
 
 /// Live traffic. Polled rather than streamed: the behaviour API rebuilds today's
@@ -33,10 +34,10 @@ final dashboardProvider = FutureProvider((ref) {
 /// battery for the same answer.
 final behaviorProvider = StreamProvider((ref) async* {
   final repo = ref.watch(statsRepositoryProvider);
-  final now = DateTime.now();
+  final range = ref.watch(statsRangeProvider);
 
   while (true) {
-    yield await repo.behavior(from: now.subtract(const Duration(days: 29)), to: now);
+    yield await repo.behavior(from: range.from, to: range.to);
     await Future<void>.delayed(const Duration(seconds: 60));
   }
 });
@@ -147,7 +148,9 @@ class _DashboardBody extends ConsumerWidget {
           orders: dashboard.value?.orders.today,
           behavior: behavior.value,
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: 18),
+        const RangeChips(),
+        const SizedBox(height: 18),
         dashboard.when(
           loading: () => const Padding(
             padding: EdgeInsets.symmetric(vertical: 40),
@@ -161,6 +164,32 @@ class _DashboardBody extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _TaskList(stats: d),
+              if (behavior.value case final b?) ...[
+                _BehaviorCard(behavior: b),
+                const SizedBox(height: 22),
+              ],
+              SectionTitle(ref.watch(statsRangeProvider).label(context)),
+              Panel(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Column(
+                  children: [
+                    _MetricRow(
+                      label: l.revenue,
+                      value: money(d.periodRevenue, locale: tag),
+                    ),
+                    _MetricRow(
+                      label: l.orders,
+                      value: compactNumber(d.periodOrders, locale: tag),
+                    ),
+                    _MetricRow(
+                      label: l.averageOrderValue,
+                      value: money(d.periodAverageOrderValue, locale: tag),
+                      isLast: true,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
               SectionTitle(l.salesOverTime),
               Panel(
                 padding: const EdgeInsets.fromLTRB(8, 20, 16, 8),
@@ -195,10 +224,6 @@ class _DashboardBody extends ConsumerWidget {
                         deltaPercent: s.totalOrders.changePercentage,
                       ),
                       _MetricRow(
-                        label: l.averageOrderValue,
-                        value: money(d.revenue.averageOrderValue, locale: tag),
-                      ),
-                      _MetricRow(
                         label: l.customers,
                         value: compactNumber(s.totalCustomers.value, locale: tag),
                         deltaPercent: s.totalCustomers.changePercentage,
@@ -228,8 +253,11 @@ class _DashboardBody extends ConsumerWidget {
               ],
               // The funnel is the slowest read on the screen, so it sits last.
               if (behavior.value case final b?) ...[
-                SectionTitle(l.funnel),
-                Panel(child: _Funnel(behavior: b)),
+                SectionTitle(
+                  l.funnel,
+                  trailing: _BehaviorLink(label: l.viewAll),
+                ),
+                Panel(child: FunnelBars(behavior: b, showDropOff: false)),
               ],
             ],
           ),
@@ -593,70 +621,6 @@ class _MiniStat extends StatelessWidget {
   }
 }
 
-/// Viewed → cart → checkout → purchased, each bar relative to total sessions.
-class _Funnel extends StatelessWidget {
-  const _Funnel({required this.behavior});
-
-  final BehaviorOverview behavior;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final l = context.l;
-    final total = behavior.sessions == 0 ? 1 : behavior.sessions;
-
-    final steps = [
-      (l.funnelViewed, behavior.productViewSessions, c.info),
-      (l.funnelCart, behavior.cartSessions, c.primary),
-      (l.funnelCheckout, behavior.checkoutSessions, c.warning),
-      (l.funnelPurchased, behavior.purchaseSessions, c.success),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final (label, value, color) in steps)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: TextStyle(fontSize: 12, color: c.textSecondary),
-                      ),
-                    ),
-                    Text(
-                      '$value',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: c.text,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(
-                    value: (value / total).clamp(0.0, 1.0).toDouble(),
-                    minHeight: 6,
-                    backgroundColor: c.surfaceHover,
-                    valueColor: AlwaysStoppedAnimation(color),
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 class _SalesChart extends StatelessWidget {
   const _SalesChart({required this.points});
 
@@ -823,3 +787,102 @@ class _TopProductRow extends StatelessWidget {
     );
   }
 }
+
+/// The way into the full behaviour report, and the two numbers that make an
+/// operator want to open it: the share of carts and of checkouts that were
+/// walked away from. A plain "Customer behaviour ›" row sat at the foot of
+/// Home and was never tapped — it said where it went, not why to go.
+class _BehaviorCard extends StatelessWidget {
+  const _BehaviorCard({required this.behavior});
+
+  final BehaviorOverview behavior;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final l = context.l;
+    final tag = context.localeTag;
+
+    return Panel(
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => openBehavior(context),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.insights_outlined, size: 18, color: c.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      l.customerBehavior,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: c.text,
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, size: 18, color: c.textDisabled),
+                ],
+              ),
+              const SizedBox(height: 11),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _MiniStat(
+                      label: l.cartAbandonment,
+                      value: '${behavior.cartAbandonRate.toStringAsFixed(0)}%',
+                    ),
+                  ),
+                  Expanded(
+                    child: _MiniStat(
+                      label: l.checkoutAbandonment,
+                      value:
+                          '${behavior.checkoutAbandonRate.toStringAsFixed(0)}%',
+                    ),
+                  ),
+                  Expanded(
+                    child: _MiniStat(
+                      label: l.searchesLabel,
+                      value: compactNumber(behavior.searches, locale: tag),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BehaviorLink extends StatelessWidget {
+  const _BehaviorLink({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => openBehavior(context),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: context.c.primary,
+        ),
+      ),
+    );
+  }
+}
+
+void openBehavior(BuildContext context) => Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const BehaviorScreen()),
+    );

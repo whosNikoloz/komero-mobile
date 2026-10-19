@@ -75,6 +75,53 @@
   "funnelCart": "დაამატეს კალათაში",
   "funnelCheckout": "დაიწყეს შეკვეთა",
   "funnelPurchased": "შეიძინეს",
+  "rangeDays": "ბოლო {count} დღე",
+  "@rangeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customRange": "პერიოდი",
+  "customerBehavior": "მომხმარებლის ქცევა",
+  "tabOverview": "მიმოხილვა",
+  "tabTraffic": "ტრაფიკი",
+  "tabCatalog": "კატალოგი",
+  "behaviorHint": "ვიზიტები, ძაბრი, ძიებები და მიტოვებული ყიდვები",
+  "visitsOverTime": "ვიზიტები დროში",
+  "contactClicks": "კონტაქტზე დაკლიკება",
+  "cartAbandonment": "კალათის მიტოვება",
+  "checkoutAbandonment": "ყიდვის მიტოვება",
+  "searchesLabel": "ძიებები",
+  "wishlistAdds": "სურვილების სიაში დამატება",
+  "trafficSources": "ტრაფიკის წყაროები",
+  "sourceDirect": "პირდაპირი",
+  "searchTerms": "რას ეძებენ მომხმარებლები",
+  "noResultSearches": "{count} უშედეგო",
+  "@noResultSearches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productInterest": "ინტერესი პროდუქტებზე",
+  "sortMostViewed": "ყველაზე ნანახი",
+  "sortMostAddedToCart": "ყველაზე ხშირად კალათაში",
+  "sortMostWishlisted": "ყველაზე ხშირად სურვილებში",
+  "sortBestSelling": "ყველაზე გაყიდვადი",
+  "sortLowestCartRate": "ყველაზე დაბალი კალათის მაჩვენებელი",
+  "viewsLabel": "ნახვა",
+  "cartAdds": "კალათაში",
+  "sold": "გაიყიდა",
+  "abandonedCheckouts": "მიტოვებული ყიდვები",
+  "stepOpened": "გახსნა ყიდვა",
+  "stepContact": "საკონტაქტო მონაცემები",
+  "stepShipping": "მიწოდება",
+  "stepPayment": "გადახდა",
+  "stepSubmitted": "გაგზავნილი",
+  "guestShopper": "სტუმარი",
   "vsLastMonth": "გასულ თვესთან",
   "ordersToFulfil": "დასამუშავებელი შეკვეთები",
   "viewAll": "ყველას ნახვა",

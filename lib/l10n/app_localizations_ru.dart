@@ -207,6 +207,109 @@ class LRu extends L {
   String get funnelPurchased => 'Купили';
 
   @override
+  String rangeDays(int count) {
+    return 'Последние $count дн.';
+  }
+
+  @override
+  String get customRange => 'Период';
+
+  @override
+  String get customerBehavior => 'Поведение покупателей';
+
+  @override
+  String get tabOverview => 'Обзор';
+
+  @override
+  String get tabTraffic => 'Трафик';
+
+  @override
+  String get tabCatalog => 'Каталог';
+
+  @override
+  String get behaviorHint => 'Визиты, воронка, поиск и брошенные оформления';
+
+  @override
+  String get visitsOverTime => 'Визиты по дням';
+
+  @override
+  String get contactClicks => 'Клики по контактам';
+
+  @override
+  String get cartAbandonment => 'Брошенные корзины';
+
+  @override
+  String get checkoutAbandonment => 'Брошенные оформления';
+
+  @override
+  String get searchesLabel => 'Поиски';
+
+  @override
+  String get wishlistAdds => 'Добавления в избранное';
+
+  @override
+  String get trafficSources => 'Источники трафика';
+
+  @override
+  String get sourceDirect => 'Прямые';
+
+  @override
+  String get searchTerms => 'Что ищут покупатели';
+
+  @override
+  String noResultSearches(int count) {
+    return '$count без результатов';
+  }
+
+  @override
+  String get productInterest => 'Интерес к товарам';
+
+  @override
+  String get sortMostViewed => 'Самые просматриваемые';
+
+  @override
+  String get sortMostAddedToCart => 'Чаще в корзине';
+
+  @override
+  String get sortMostWishlisted => 'Чаще в избранном';
+
+  @override
+  String get sortBestSelling => 'Самые продаваемые';
+
+  @override
+  String get sortLowestCartRate => 'Низкая конверсия в корзину';
+
+  @override
+  String get viewsLabel => 'просмотры';
+
+  @override
+  String get cartAdds => 'В корзине';
+
+  @override
+  String get sold => 'Продано';
+
+  @override
+  String get abandonedCheckouts => 'Брошенные оформления';
+
+  @override
+  String get stepOpened => 'Открыл оформление';
+
+  @override
+  String get stepContact => 'Контактные данные';
+
+  @override
+  String get stepShipping => 'Доставка';
+
+  @override
+  String get stepPayment => 'Оплата';
+
+  @override
+  String get stepSubmitted => 'Отправлен';
+
+  @override
+  String get guestShopper => 'Гость';
+
+  @override
   String get vsLastMonth => 'к прошлому месяцу';
 
   @override

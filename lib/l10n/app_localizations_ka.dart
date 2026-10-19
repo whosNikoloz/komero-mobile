@@ -206,6 +206,109 @@ class LKa extends L {
   String get funnelPurchased => 'შეიძინეს';
 
   @override
+  String rangeDays(int count) {
+    return 'ბოლო $count დღე';
+  }
+
+  @override
+  String get customRange => 'პერიოდი';
+
+  @override
+  String get customerBehavior => 'მომხმარებლის ქცევა';
+
+  @override
+  String get tabOverview => 'მიმოხილვა';
+
+  @override
+  String get tabTraffic => 'ტრაფიკი';
+
+  @override
+  String get tabCatalog => 'კატალოგი';
+
+  @override
+  String get behaviorHint => 'ვიზიტები, ძაბრი, ძიებები და მიტოვებული ყიდვები';
+
+  @override
+  String get visitsOverTime => 'ვიზიტები დროში';
+
+  @override
+  String get contactClicks => 'კონტაქტზე დაკლიკება';
+
+  @override
+  String get cartAbandonment => 'კალათის მიტოვება';
+
+  @override
+  String get checkoutAbandonment => 'ყიდვის მიტოვება';
+
+  @override
+  String get searchesLabel => 'ძიებები';
+
+  @override
+  String get wishlistAdds => 'სურვილების სიაში დამატება';
+
+  @override
+  String get trafficSources => 'ტრაფიკის წყაროები';
+
+  @override
+  String get sourceDirect => 'პირდაპირი';
+
+  @override
+  String get searchTerms => 'რას ეძებენ მომხმარებლები';
+
+  @override
+  String noResultSearches(int count) {
+    return '$count უშედეგო';
+  }
+
+  @override
+  String get productInterest => 'ინტერესი პროდუქტებზე';
+
+  @override
+  String get sortMostViewed => 'ყველაზე ნანახი';
+
+  @override
+  String get sortMostAddedToCart => 'ყველაზე ხშირად კალათაში';
+
+  @override
+  String get sortMostWishlisted => 'ყველაზე ხშირად სურვილებში';
+
+  @override
+  String get sortBestSelling => 'ყველაზე გაყიდვადი';
+
+  @override
+  String get sortLowestCartRate => 'ყველაზე დაბალი კალათის მაჩვენებელი';
+
+  @override
+  String get viewsLabel => 'ნახვა';
+
+  @override
+  String get cartAdds => 'კალათაში';
+
+  @override
+  String get sold => 'გაიყიდა';
+
+  @override
+  String get abandonedCheckouts => 'მიტოვებული ყიდვები';
+
+  @override
+  String get stepOpened => 'გახსნა ყიდვა';
+
+  @override
+  String get stepContact => 'საკონტაქტო მონაცემები';
+
+  @override
+  String get stepShipping => 'მიწოდება';
+
+  @override
+  String get stepPayment => 'გადახდა';
+
+  @override
+  String get stepSubmitted => 'გაგზავნილი';
+
+  @override
+  String get guestShopper => 'სტუმარი';
+
+  @override
   String get vsLastMonth => 'გასულ თვესთან';
 
   @override

@@ -10,6 +10,7 @@ import 'package:komero_mobile/src/data/branding.dart';
 import 'package:komero_mobile/src/features/orders/order_detail_screen.dart';
 import 'package:komero_mobile/src/features/dashboard/dashboard_screen.dart'
     show meProvider;
+import 'package:komero_mobile/src/features/dashboard/behavior_screen.dart';
 import 'package:komero_mobile/src/features/auth/login_screen.dart';
 import 'package:komero_mobile/src/features/auth/welcome_screen.dart';
 import 'package:komero_mobile/src/features/inventory/inventory_screen.dart';
@@ -19,6 +20,7 @@ import 'package:komero_mobile/src/models/inventory.dart';
 import 'package:komero_mobile/src/models/me.dart';
 import 'package:komero_mobile/src/models/order.dart';
 import 'package:komero_mobile/src/models/product.dart';
+import 'package:komero_mobile/src/models/stats.dart';
 
 /// Pumps real screens with canned data. Catches the layout faults that only
 /// appear once a screen actually renders — the kind `flutter analyze` cannot
@@ -277,4 +279,89 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('customer behaviour renders every tab', (tester) async {
+    final overview = BehaviorOverview.fromJson({
+      'sessions': 420,
+      'productViewSessions': 260,
+      'cartSessions': 80,
+      'checkoutSessions': 35,
+      'purchaseSessions': 18,
+      'activeNow': 3,
+      'searches': 64,
+      'wishlists': 12,
+      'contactClicks': 9,
+      'contactChannels': {'phone': 6, 'whatsapp': 3},
+      'days': [
+        for (var d = 1; d <= 10; d++)
+          {'day': '2026-10-0$d', 'sessions': 40 + d, 'purchaseSessions': d},
+      ],
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          behaviorOverviewProvider.overrideWith((ref) async => overview),
+          sourcesProvider.overrideWith(
+            (ref) async => [
+              SourceRow.fromJson({
+                'source': 'facebook',
+                'sessions': 200,
+                'purchaseSessions': 10,
+              }),
+            ],
+          ),
+          searchTermsProvider.overrideWith(
+            (ref) async => [
+              SearchTerm.fromJson({
+                'term': 'ჩექმები',
+                'searches': 14,
+                'zeroResultSearches': 5,
+              }),
+            ],
+          ),
+          productBehaviorProvider.overrideWith(
+            (ref) async => [
+              ProductBehavior.fromJson({
+                'productId': 'p1',
+                'name': 'ზამთრის ქურთუკი',
+                'views': 120,
+                'cartAdds': 9,
+                'unitsSold': 3,
+                'cartRate': 7.5,
+              }),
+            ],
+          ),
+          abandonedProvider.overrideWith(
+            (ref) async => Paged.fromJson({
+              'total': 1,
+              'data': [
+                {
+                  'sessionId': 's1',
+                  'lastActivityAt': '2026-10-10T12:00:00Z',
+                  'stepReached': 'payment',
+                  'value': 180,
+                  'items': [
+                    {'productId': 'p1', 'quantity': 1, 'price': 180},
+                  ],
+                },
+              ],
+            }, AbandonedSession.fromJson),
+          ),
+        ],
+        child: _app(const BehaviorScreen()),
+      ),
+    );
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    expect(tester.takeException(), isNull);
+
+    // Each tab lays out on its own — an overflow only shows once it is built.
+    for (final tab in [1, 2]) {
+      await tester.tap(find.byType(Tab).at(tab));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      expect(tester.takeException(), isNull);
+    }
+  });
+
 }

@@ -465,6 +465,204 @@ abstract class L {
   /// **'Purchased'**
   String get funnelPurchased;
 
+  /// No description provided for @rangeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {count} days'**
+  String rangeDays(int count);
+
+  /// No description provided for @customRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get customRange;
+
+  /// No description provided for @customerBehavior.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer behaviour'**
+  String get customerBehavior;
+
+  /// No description provided for @tabOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get tabOverview;
+
+  /// No description provided for @tabTraffic.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic'**
+  String get tabTraffic;
+
+  /// No description provided for @tabCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get tabCatalog;
+
+  /// No description provided for @behaviorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits, funnel, searches and abandoned checkouts'**
+  String get behaviorHint;
+
+  /// No description provided for @visitsOverTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits over time'**
+  String get visitsOverTime;
+
+  /// No description provided for @contactClicks.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact clicks'**
+  String get contactClicks;
+
+  /// No description provided for @cartAbandonment.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart abandonment'**
+  String get cartAbandonment;
+
+  /// No description provided for @checkoutAbandonment.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout abandonment'**
+  String get checkoutAbandonment;
+
+  /// No description provided for @searchesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Searches'**
+  String get searchesLabel;
+
+  /// No description provided for @wishlistAdds.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist adds'**
+  String get wishlistAdds;
+
+  /// No description provided for @trafficSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic sources'**
+  String get trafficSources;
+
+  /// No description provided for @sourceDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get sourceDirect;
+
+  /// No description provided for @searchTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'What shoppers search'**
+  String get searchTerms;
+
+  /// No description provided for @noResultSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} with no results'**
+  String noResultSearches(int count);
+
+  /// No description provided for @productInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Product interest'**
+  String get productInterest;
+
+  /// No description provided for @sortMostViewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Most viewed'**
+  String get sortMostViewed;
+
+  /// No description provided for @sortMostAddedToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Most added to cart'**
+  String get sortMostAddedToCart;
+
+  /// No description provided for @sortMostWishlisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Most wishlisted'**
+  String get sortMostWishlisted;
+
+  /// No description provided for @sortBestSelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Best selling'**
+  String get sortBestSelling;
+
+  /// No description provided for @sortLowestCartRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest cart rate'**
+  String get sortLowestCartRate;
+
+  /// No description provided for @viewsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'views'**
+  String get viewsLabel;
+
+  /// No description provided for @cartAdds.
+  ///
+  /// In en, this message translates to:
+  /// **'In cart'**
+  String get cartAdds;
+
+  /// No description provided for @sold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get sold;
+
+  /// No description provided for @abandonedCheckouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Abandoned checkouts'**
+  String get abandonedCheckouts;
+
+  /// No description provided for @stepOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened checkout'**
+  String get stepOpened;
+
+  /// No description provided for @stepContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact details'**
+  String get stepContact;
+
+  /// No description provided for @stepShipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping'**
+  String get stepShipping;
+
+  /// No description provided for @stepPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get stepPayment;
+
+  /// No description provided for @stepSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get stepSubmitted;
+
+  /// No description provided for @guestShopper.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get guestShopper;
+
   /// No description provided for @vsLastMonth.
   ///
   /// In en, this message translates to:
