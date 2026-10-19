@@ -280,6 +280,11 @@ class _OrderBody extends ConsumerWidget {
             longitude: order.shippingLongitude,
           ),
         ],
+        if (order.trackingSteps.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          SectionTitle(l.trackingHistory),
+          Panel(child: _TrackingHistory(steps: order.trackingSteps)),
+        ],
         const SizedBox(height: 24),
         if (!canManage)
           Text(
@@ -401,21 +406,23 @@ class _OrderActionsState extends ConsumerState<_OrderActions> {
     }
   }
 
-  Future<void> _fulfil() async {
+  /// The full update form — status, tracking number, ETA and an internal note,
+  /// the same four fields the web admin's "Quick Update" panel sends.
+  Future<void> _edit({OrderStatus? preset, required String title}) async {
     final l = context.l;
     // One draft object owned by this call, shared by the sheet's body and its
     // pinned action, and disposed when the sheet closes.
-    final draft = _FulfilDraft(widget.order);
+    final draft = _StatusDraft(widget.order, preset);
 
-    final ({String? tracking, DateTime? eta})? result;
+    final _StatusUpdate? result;
 
     try {
-      result = await showKomeroSheet<({String? tracking, DateTime? eta})>(
+      result = await showKomeroSheet<_StatusUpdate>(
         context,
-        title: l.fulfillOrder,
+        title: title,
         subtitle: l.orderNumber(widget.order.orderNumber ?? widget.order.id),
-        builder: (_) => _FulfilFields(draft: draft),
-        actions: [_FulfilSubmit(draft: draft)],
+        builder: (_) => _StatusFields(draft: draft),
+        actions: [_StatusSubmit(draft: draft, label: title)],
       );
     } finally {
       draft.dispose();
@@ -423,14 +430,15 @@ class _OrderActionsState extends ConsumerState<_OrderActions> {
 
     if (result == null) return;
 
-    final fulfilment = result;
+    final update = result;
 
     await _run(
       () => ref.read(orderRepositoryProvider).updateStatus(
             orderId: widget.order.id,
-            status: OrderStatus.shipped,
-            trackingNumber: fulfilment.tracking,
-            estimatedDelivery: fulfilment.eta,
+            status: update.status,
+            trackingNumber: update.tracking,
+            estimatedDelivery: update.eta,
+            description: update.note,
           ),
       l.statusUpdated,
     );
@@ -506,7 +514,12 @@ class _OrderActionsState extends ConsumerState<_OrderActions> {
         if (canFulfil) ...[
           if (status == OrderStatus.pending) const SizedBox(height: 10),
           FilledButton.icon(
-            onPressed: _busy ? null : _fulfil,
+            onPressed: _busy
+                ? null
+                : () => _edit(
+                      preset: OrderStatus.shipped,
+                      title: l.markAsFulfilled,
+                    ),
             icon: const Icon(Icons.local_shipping_outlined, size: 18),
             label: Text(l.markAsFulfilled),
           ),
@@ -536,6 +549,12 @@ class _OrderActionsState extends ConsumerState<_OrderActions> {
             label: Text(l.markRefunded),
           ),
         ],
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: _busy ? null : () => _edit(title: l.updateStatus),
+          icon: const Icon(Icons.edit_outlined, size: 18),
+          label: Text(l.updateStatus),
+        ),
         if (canCancel) ...[
           const SizedBox(height: 10),
           OutlinedButton.icon(
@@ -553,15 +572,34 @@ class _OrderActionsState extends ConsumerState<_OrderActions> {
   }
 }
 
-/// The in-progress fulfilment, owned by `_fulfil()` so the sheet's body and
-/// its pinned action share one source of truth without module-level state.
-class _FulfilDraft extends ChangeNotifier {
-  _FulfilDraft(OrderDetail order)
+/// What the sheet hands back to `_edit()`.
+typedef _StatusUpdate = ({
+  OrderStatus status,
+  String? tracking,
+  DateTime? eta,
+  String? note,
+});
+
+/// The in-progress update, owned by `_edit()` so the sheet's body and its
+/// pinned action share one source of truth without module-level state.
+class _StatusDraft extends ChangeNotifier {
+  _StatusDraft(OrderDetail order, OrderStatus? preset)
       : tracking = TextEditingController(text: order.trackingNumber ?? ''),
+        note = TextEditingController(),
+        _status = preset ?? order.status,
         _eta = order.estimatedDelivery;
 
   final TextEditingController tracking;
+  final TextEditingController note;
+  OrderStatus _status;
   DateTime? _eta;
+
+  OrderStatus get status => _status;
+
+  set status(OrderStatus value) {
+    _status = value;
+    notifyListeners();
+  }
 
   DateTime? get eta => _eta;
 
@@ -570,42 +608,62 @@ class _FulfilDraft extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? get trackingOrNull =>
-      tracking.text.trim().isEmpty ? null : tracking.text.trim();
+  static String? _trimmed(TextEditingController c) =>
+      c.text.trim().isEmpty ? null : c.text.trim();
+
+  _StatusUpdate get value => (
+        status: _status,
+        tracking: _trimmed(tracking),
+        eta: _eta,
+        note: _trimmed(note),
+      );
 
   @override
   void dispose() {
     tracking.dispose();
+    note.dispose();
     super.dispose();
   }
 }
 
-/// Tracking number + ETA — the two things "mark as fulfilled" actually sends.
-class _FulfilFields extends StatelessWidget {
-  const _FulfilFields({required this.draft});
+/// Status, tracking number, ETA and internal note — what the update sends.
+class _StatusFields extends StatelessWidget {
+  const _StatusFields({required this.draft});
 
-  final _FulfilDraft draft;
+  final _StatusDraft draft;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          controller: draft.tracking,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: l.trackingNumber,
-            hintText: l.trackingNumberHint,
-            prefixIcon: const Icon(Icons.qr_code_2_outlined),
+    return ListenableBuilder(
+      listenable: draft,
+      builder: (context, _) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DropdownButtonFormField<OrderStatus>(
+            initialValue: draft.status,
+            decoration: InputDecoration(labelText: l.status),
+            items: [
+              for (final s in OrderStatus.values)
+                DropdownMenuItem(
+                  value: s,
+                  child: Text(l.orderStatusLabel(s)),
+                ),
+            ],
+            onChanged: (v) => draft.status = v ?? draft.status,
           ),
-        ),
-        const SizedBox(height: 12),
-        ListenableBuilder(
-          listenable: draft,
-          builder: (context, _) => OutlinedButton.icon(
+          const SizedBox(height: 12),
+          TextField(
+            controller: draft.tracking,
+            decoration: InputDecoration(
+              labelText: l.trackingNumber,
+              hintText: l.trackingNumberHint,
+              prefixIcon: const Icon(Icons.qr_code_2_outlined),
+            ),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
             onPressed: () async {
               final picked = await showDatePicker(
                 context: context,
@@ -625,26 +683,115 @@ class _FulfilFields extends StatelessWidget {
                       '${draft.eta!.day}.${draft.eta!.month}.${draft.eta!.year}',
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 12),
+          TextField(
+            controller: draft.note,
+            minLines: 2,
+            maxLines: 4,
+            decoration: InputDecoration(
+              labelText: l.internalNote,
+              hintText: l.internalNoteHint,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _FulfilSubmit extends StatelessWidget {
-  const _FulfilSubmit({required this.draft});
+class _StatusSubmit extends StatelessWidget {
+  const _StatusSubmit({required this.draft, required this.label});
 
-  final _FulfilDraft draft;
+  final _StatusDraft draft;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     return FilledButton.icon(
-      onPressed: () => Navigator.pop(
-        context,
-        (tracking: draft.trackingOrNull, eta: draft.eta),
-      ),
-      icon: const Icon(Icons.local_shipping_outlined, size: 18),
-      label: Text(context.l.markAsFulfilled),
+      onPressed: () => Navigator.pop(context, draft.value),
+      icon: const Icon(Icons.check, size: 18),
+      label: Text(label),
+    );
+  }
+}
+
+/// The order's status history, oldest first — the web admin's "Tracking
+/// History" list as a timeline.
+class _TrackingHistory extends StatelessWidget {
+  const _TrackingHistory({required this.steps});
+
+  final List<TrackingStep> steps;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final l = context.l;
+    final tag = context.localeTag;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < steps.length; i++)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      width: 9,
+                      height: 9,
+                      margin: const EdgeInsets.only(top: 5),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: steps[i].completed ? c.success : c.border,
+                      ),
+                    ),
+                    if (i != steps.length - 1)
+                      Expanded(child: Container(width: 1, color: c.border)),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: i == steps.length - 1 ? 0 : 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l.orderStatusLabel(steps[i].status),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: c.text,
+                          ),
+                        ),
+                        if (steps[i].description != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              steps[i].description!,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: c.textSecondary,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 2),
+                        Text(
+                          shortDate(steps[i].date, locale: tag),
+                          style: TextStyle(fontSize: 11, color: c.textMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

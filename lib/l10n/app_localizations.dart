@@ -885,6 +885,24 @@ abstract class L {
   /// **'Order updated'**
   String get statusUpdated;
 
+  /// No description provided for @trackingHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking history'**
+  String get trackingHistory;
+
+  /// No description provided for @internalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal note'**
+  String get internalNote;
+
+  /// No description provided for @internalNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Update description...'**
+  String get internalNoteHint;
+
   /// No description provided for @addNote.
   ///
   /// In en, this message translates to:

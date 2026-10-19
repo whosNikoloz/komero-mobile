@@ -453,6 +453,15 @@ class LRu extends L {
   String get statusUpdated => 'Заказ обновлён';
 
   @override
+  String get trackingHistory => 'История статусов';
+
+  @override
+  String get internalNote => 'Внутренняя заметка';
+
+  @override
+  String get internalNoteHint => 'Описание обновления...';
+
+  @override
   String get addNote => 'Примечание для клиента';
 
   @override

@@ -191,6 +191,31 @@ class OrderCustomer {
       );
 }
 
+/// One entry of the order's status history — the same `trackingSteps` the web
+/// admin renders under "Tracking History".
+class TrackingStep {
+  TrackingStep({
+    required this.status,
+    required this.date,
+    required this.completed,
+    this.description,
+  });
+
+  final OrderStatus status;
+  final DateTime? date;
+  final bool completed;
+  final String? description;
+
+  factory TrackingStep.fromJson(Map j) => TrackingStep(
+        status: OrderStatus.fromWire(j['status']),
+        date: DateTime.tryParse('${j['date']}'),
+        completed: j['completed'] == true,
+        description: (j['description'] as String?)?.trim().isEmpty ?? true
+            ? null
+            : '${j['description']}'.trim(),
+      );
+}
+
 class OrderDetail extends OrderSummary {
   OrderDetail({
     required super.id,
@@ -217,6 +242,7 @@ class OrderDetail extends OrderSummary {
     this.paymentMethod,
     this.paymentProvider,
     this.customer,
+    this.trackingSteps = const [],
   });
 
   final List<OrderItem> orderItems;
@@ -238,6 +264,9 @@ class OrderDetail extends OrderSummary {
   final String? paymentMethod;
   final String? paymentProvider;
   final OrderCustomer? customer;
+
+  /// Oldest first, as the backend sends it.
+  final List<TrackingStep> trackingSteps;
 
   factory OrderDetail.fromJson(Map<String, dynamic> j) {
     final base = OrderSummary.fromJson(j);
@@ -271,6 +300,9 @@ class OrderDetail extends OrderSummary {
       customer: j['user'] == null
           ? null
           : OrderCustomer.fromJson(j['user'] as Map),
+      trackingSteps: ((j['trackingSteps'] ?? const []) as List)
+          .map((e) => TrackingStep.fromJson(e as Map))
+          .toList(),
     );
   }
 }

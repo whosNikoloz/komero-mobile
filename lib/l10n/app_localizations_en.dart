@@ -444,6 +444,15 @@ class LEn extends L {
   String get statusUpdated => 'Order updated';
 
   @override
+  String get trackingHistory => 'Tracking history';
+
+  @override
+  String get internalNote => 'Internal note';
+
+  @override
+  String get internalNoteHint => 'Update description...';
+
+  @override
   String get addNote => 'Note for the customer';
 
   @override

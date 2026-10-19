@@ -34,4 +34,29 @@ void main() {
     expect(o.channel, OrderChannel.pos);
     expect(o.isPos, isTrue);
   });
+  test('a detail parses its tracking history', () {
+    final o = OrderDetail.fromJson({
+      'id': 'a',
+      'date': '2026-01-02T03:04:05Z',
+      'status': 3,
+      'items': 1,
+      'total': 10,
+      'trackingSteps': [
+        {
+          'status': 'Paid',
+          'date': '2026-01-02T03:04:05Z',
+          'completed': true,
+          'description': '  ',
+        },
+        {'status': 3, 'date': '2026-01-03T00:00:00Z', 'completed': false,
+         'description': 'handed to courier'},
+      ],
+    });
+
+    expect(o.trackingSteps.map((s) => s.status),
+        [OrderStatus.paid, OrderStatus.shipped]);
+    expect(o.trackingSteps.first.description, isNull);
+    expect(o.trackingSteps.last.description, 'handed to courier');
+    expect(o.trackingSteps.last.completed, isFalse);
+  });
 }

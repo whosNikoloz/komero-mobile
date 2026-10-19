@@ -446,6 +446,15 @@ class LKa extends L {
   String get statusUpdated => 'შეკვეთა განახლდა';
 
   @override
+  String get trackingHistory => 'თრექინგის ისტორია';
+
+  @override
+  String get internalNote => 'შიდა შენიშვნა';
+
+  @override
+  String get internalNoteHint => 'აღწერის განახლება...';
+
+  @override
   String get addNote => 'შენიშვნა მომხმარებლისთვის';
 
   @override
